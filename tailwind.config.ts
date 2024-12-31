@@ -9,8 +9,10 @@ export default {
         primaryGreen: "hsl(145, 67%, 45%)",
         primaryYellow: "hsl(47, 96%, 66%)",
         secondaryYellow: "hsl(35, 82%, 57%)",
-        titleText: "hsl(0, 0%, 23%)",
-        bodyText: "hsl(0, 0%, 53%)",
+        darkGray: "hsl(0, 0%, 23%)",
+        mediumGray: "hsl(0, 0%, 53%)",
+        lightGray: "hsl(0, 0%, 91%)",
+        veryLightGray: "hsl(0, 0%, 98%)",
       },
       fontFamily: {
         lato: ["var(--font-lato)"],
