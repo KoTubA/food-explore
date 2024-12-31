@@ -26,7 +26,7 @@ const FoodMap = () => {
   const mapStyle = "https://tiles.openfreemap.org/styles/liberty"; // URL to the OpenFreeMap style
 
   return (
-    <div className="flex-1 overflow-hidden">
+    <div className="w-full h-full">
       <Map
         style={{ width: "100%", height: "100%" }}
         mapStyle={mapStyle}

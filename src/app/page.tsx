@@ -3,7 +3,7 @@ import BottomBar from "@/src/app/components/BottomBar/BottomBar";
 
 const Home = () => {
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-dvh h-flex flex-col">
       <FoodMap />
       <BottomBar />
     </div>
