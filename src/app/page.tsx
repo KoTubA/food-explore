@@ -1,5 +1,9 @@
+"use client";
+
 import FoodMap from "@/src/app/components/FoodMap/FoodMap";
-import BottomBar from "@/src/app/components/BottomBar/BottomBar";
+import dynamic from "next/dynamic";
+
+const BottomBar = dynamic(() => import("@/src/app/components/BottomBar/BottomBar"), { ssr: false });
 
 const Home = () => {
   return (

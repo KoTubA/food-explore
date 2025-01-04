@@ -28,7 +28,9 @@ export default function RootLayout({
   return (
     <html lang="pl">
       <body className={`${roboto.variable} ${lato.variable} antialiased bg-white`}>
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <div id="root">{children}</div>
+        </AppProviders>
       </body>
     </html>
   );

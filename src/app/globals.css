@@ -9,6 +9,7 @@ a {
 html,
 body {
   font-family: "Roboto", sans-serif;
+  overscroll-behavior: none; /* Disables bounce */
 }
 
 .maplibregl-popup-close-button {
