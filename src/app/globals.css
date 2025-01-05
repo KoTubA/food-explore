@@ -31,3 +31,17 @@ body {
 .dark .maplibregl-popup-anchor-top .maplibregl-popup-tip {
   border-bottom-color: #0a0a0a;
 }
+
+.maplibregl-ctrl-top-right .maplibregl-ctrl-group {
+  display: none;
+}
+
+.maplibregl-ctrl-top-right .maplibregl-ctrl-group:last-child {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .maplibregl-ctrl-top-right .maplibregl-ctrl-group {
+    display: block;
+  }
+}

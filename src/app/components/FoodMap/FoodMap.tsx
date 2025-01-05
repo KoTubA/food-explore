@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Map, NavigationControl, ScaleControl, FullscreenControl, GeolocateControl, Marker } from "react-map-gl/maplibre";
+import { Map, NavigationControl, GeolocateControl, Marker } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { setRestaurant, Restaurant } from "@/src/redux/slices/restaurantsSlice";
-import { restaurants as localRestaurants } from "@/src/data/restaurantsData";
 import { RootState } from "@/src/redux/store";
+
+const spaceId = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
+const accessToken = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN;
 
 const FoodMap = () => {
   const dispatch = useDispatch();
@@ -15,12 +17,57 @@ const FoodMap = () => {
   const [, setSelectedRestaurants] = useState<Restaurant | null>(null);
 
   useEffect(() => {
-    // Import local restaurant data and dispatch it to Redux store
-    try {
-      dispatch(setRestaurant(localRestaurants));
-    } catch (error) {
-      console.error("Error loading local restaurants:", error);
-    }
+    const fetchRestaurants = async () => {
+      try {
+        // GraphQL API URL for fetching restaurants
+        const url = `https://graphql.contentful.com/content/v1/spaces/${spaceId}/environments/master`;
+
+        // Define the GraphQL query
+        const query = `
+          query {
+            foodExpoCollection(order: [id_ASC], limit: 500) {
+              items {
+                id
+                name
+                address
+                lat
+                lng
+                image {
+                  url
+                }
+                type
+                cuisine
+                foodCategories
+                dietaryStyles
+                price
+                link
+                googleMapsLink
+              }
+            }
+          }
+        `;
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ query }),
+        });
+
+        const data = await response.json();
+        const fieldsData = data.data.foodExpoCollection.items;
+        console.log(fieldsData);
+
+        // Dispatch data to Redux store
+        dispatch(setRestaurant(fieldsData));
+      } catch (error) {
+        console.error("Error fetching restaurants from Contentful:", error);
+      }
+    };
+
+    fetchRestaurants();
   }, [dispatch]);
 
   const mapStyle = "https://tiles.openfreemap.org/styles/liberty"; // URL to the OpenFreeMap style
@@ -38,8 +85,6 @@ const FoodMap = () => {
       >
         {/* Add navigation controls (zoom, rotate, etc.) */}
         <NavigationControl position="top-right" />
-        <ScaleControl />
-        <FullscreenControl position="top-right" />
         <GeolocateControl position="top-right" />
 
         {/* Add markers for restaurants */}
