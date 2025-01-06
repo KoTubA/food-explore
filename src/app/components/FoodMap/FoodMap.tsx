@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
 import { Map, NavigationControl, GeolocateControl, Marker } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { useDispatch, useSelector } from "react-redux";
 import { setRestaurant, Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { RootState } from "@/src/redux/store";
+import { setSelectedRestaurant } from "@/src/redux/slices/restaurantsSlice";
 
 const spaceId = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
 const accessToken = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN;
@@ -14,7 +15,9 @@ const FoodMap = () => {
   const dispatch = useDispatch();
   const restaurants = useSelector((state: RootState) => state.restaurants.restaurant);
 
-  const [, setSelectedRestaurants] = useState<Restaurant | null>(null);
+  const setSelectedRestaurants = (restaurant: Restaurant) => {
+    dispatch(setSelectedRestaurant(restaurant));
+  };
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -42,6 +45,7 @@ const FoodMap = () => {
                 price
                 link
                 googleMapsLink
+                slug
               }
             }
           }
