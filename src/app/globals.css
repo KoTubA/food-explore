@@ -45,3 +45,8 @@ body {
     display: block;
   }
 }
+
+.react-modal-sheet-container {
+  max-width: 512px;
+  left: calc(50% - 256px) !important;
+}

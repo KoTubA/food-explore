@@ -14,7 +14,7 @@ import { FaEarthAmericas } from "react-icons/fa6";
 import { FaGoogle } from "react-icons/fa";
 import { FaSeedling } from "react-icons/fa";
 import { FaLeaf } from "react-icons/fa";
-import { TbWheatOff } from "react-icons/tb";
+import { LuWheatOff } from "react-icons/lu";
 import { FaMoneyBills } from "react-icons/fa6";
 import { FaUtensilSpoon } from "react-icons/fa";
 
@@ -56,7 +56,7 @@ const RestaurantDetails = () => {
   };
 
   return (
-    <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onClose={() => {}} snapPoints={[0.95, 0.5, 100]} initialSnap={1} style={{ zIndex: 20 }}>
+    <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onClose={() => {}} snapPoints={[0.95, 0.5, 100]} initialSnap={1}>
       <Sheet.Container>
         <Sheet.Header />
         <Sheet.Content>
@@ -67,7 +67,7 @@ const RestaurantDetails = () => {
                   <div className="flex items-start justify-between space-x-4">
                     <div className="flex flex-col space-y-1">
                       <h2 className="text-xl font-medium">{selectedRestaurant.name}</h2>
-                      <div className="text-sm text-mediumGray flex space-x-2">
+                      <div className="text-sm text-mediumGray flex items-center space-x-2">
                         {selectedRestaurant.type && (
                           <span className="flex items-center">
                             <span>{selectedRestaurant.type}</span>
@@ -91,7 +91,7 @@ const RestaurantDetails = () => {
                                   icon = <FaSeedling className="text-primaryGreen" />;
                                   break;
                                 case "Bezglutenowa":
-                                  icon = <TbWheatOff className="text-primaryRed" />;
+                                  icon = <LuWheatOff className="text-primaryRed" />;
                                   break;
                                 default:
                                   icon = null;
@@ -127,17 +127,15 @@ const RestaurantDetails = () => {
                   <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
                     {selectedRestaurant.image ? <Image src={selectedRestaurant.image.url} alt={selectedRestaurant.name} className="object-cover" fill /> : <span>No media</span>}
                   </div>
-                  <div className="flex flex-col space-y-1">
-                    {selectedRestaurant.foodCategories && selectedRestaurant.foodCategories.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {selectedRestaurant.foodCategories.map((category, i) => (
-                          <span key={i} className="bg-lightGray text-darkGray text-xs font-medium px-2 py-1 rounded-xl">
-                            {category}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  {selectedRestaurant.foodCategories && selectedRestaurant.foodCategories.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedRestaurant.foodCategories.map((category, i) => (
+                        <span key={i} className="bg-lightGray text-darkGray text-xs font-medium px-2 py-1 rounded-xl">
+                          {category}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col text-mediumGray text-sm border-b border-lightGray">
                   <div className="flex items-center space-x-4 p-4 border-t border-lightGray">

@@ -5,6 +5,9 @@ import { Sheet, type SheetRef } from "react-modal-sheet";
 import { useState, useRef } from "react";
 import { IoSearch } from "react-icons/io5";
 import { FiFilter } from "react-icons/fi";
+import { FaSeedling } from "react-icons/fa";
+import { FaLeaf } from "react-icons/fa";
+import { LuWheatOff } from "react-icons/lu";
 import { RootState } from "@/src/redux/store";
 import { Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -47,17 +50,7 @@ const BottomBar = () => {
   return (
     <>
       {/* Sheet z listą restauracji */}
-      <Sheet
-        ref={listSheetRef}
-        isOpen={!isRestaurantDetailsOpen}
-        onClose={() => {}}
-        snapPoints={snapPoints}
-        initialSnap={snapPosition}
-        onSnap={handleSnap}
-        style={{
-          zIndex: 10,
-        }}
-      >
+      <Sheet ref={listSheetRef} isOpen={!isRestaurantDetailsOpen} onClose={() => {}} snapPoints={snapPoints} initialSnap={snapPosition} onSnap={handleSnap}>
         <Sheet.Container>
           <Sheet.Header />
           <Sheet.Content>
@@ -80,9 +73,44 @@ const BottomBar = () => {
                     <div className="flex flex-col space-y-1">
                       <h4 className="text-xl font-light">{restaurant.name}</h4>
                       <div className="text-sm text-mediumGray flex items-center space-x-2">
-                        {restaurant.type && <span>{restaurant.type}</span>}
-                        {restaurant.type && restaurant.price && <span>•</span>}
-                        {restaurant.price && <span>{restaurant.price}</span>}
+                        {restaurant.type && (
+                          <span className="flex items-center">
+                            <span>{restaurant.type}</span>
+                          </span>
+                        )}
+                        {restaurant.price && (
+                          <span className="flex items-center space-x-2">
+                            <span>•</span>
+                            <span>{restaurant.price}</span>
+                          </span>
+                        )}
+                        {restaurant.dietaryStyles && restaurant.dietaryStyles.length > 0 && (
+                          <>
+                            {restaurant.dietaryStyles.map((category) => {
+                              let icon;
+                              switch (category) {
+                                case "Wegetariańska":
+                                  icon = <FaLeaf className="text-primaryGreen" />;
+                                  break;
+                                case "Wegańska":
+                                  icon = <FaSeedling className="text-primaryGreen" />;
+                                  break;
+                                case "Bezglutenowa":
+                                  icon = <LuWheatOff className="text-primaryRed" />;
+                                  break;
+                                default:
+                                  icon = null;
+                              }
+
+                              return (
+                                <span key={category} className="flex items-center space-x-2">
+                                  <span>•</span>
+                                  {icon}
+                                </span>
+                              );
+                            })}
+                          </>
+                        )}
                       </div>
                       {restaurant.foodCategories && restaurant.foodCategories.length > 0 && (
                         <div className="flex flex-wrap gap-2 pt-1">
