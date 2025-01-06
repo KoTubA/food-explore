@@ -22,7 +22,10 @@ const BottomBar = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const listSheetRef = useRef<SheetRef>(null);
-  const snapToList = (i: number) => listSheetRef.current?.snapTo(i);
+  const snapToList = (i: number) => {
+    dispatch(setSnapPosition(i));
+    listSheetRef.current?.snapTo(i);
+  };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
