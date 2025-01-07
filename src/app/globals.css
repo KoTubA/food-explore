@@ -48,5 +48,7 @@ body {
 
 .react-modal-sheet-container {
   max-width: 512px;
-  left: calc(50% - 256px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  margin: auto;
 }
