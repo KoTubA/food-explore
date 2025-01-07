@@ -61,7 +61,6 @@ const FoodMap = () => {
 
         const data = await response.json();
         const fieldsData = data.data.foodExpoCollection.items;
-        console.log(fieldsData);
 
         // Dispatch data to Redux store
         dispatch(setRestaurant(fieldsData));
@@ -78,7 +77,6 @@ const FoodMap = () => {
 
     if (mapInstance) {
       const markerPosition = mapInstance.project([restaurant.lng, restaurant.lat]);
-      console.log(markerPosition);
 
       // Calculate screen height and width (used to determine where the marker is positioned)
       const screenHeight = window.innerHeight;
@@ -92,30 +90,16 @@ const FoodMap = () => {
       const thresholdWidthLow = screenWidth * 0.2; // 20% width of the screen
       const thresholdWidthHigh = screenWidth * 0.8; // 80% width of the screen
 
-      const markerWidth = 36; // Adjust based on your marker size (e.g., 36px for a 36px wide marker)
-
       // If the marker is outside the 20% to 80% horizontal and vertical ranges, adjust the map
       if (markerPosition.y < thresholdHeightLow || markerPosition.y > thresholdHeightTop || markerPosition.x < thresholdWidthLow || markerPosition.x > thresholdWidthHigh) {
         mapInstance.easeTo({
           center: [restaurant.lng, restaurant.lat], // Keep the center of the map on the restaurant's coordinates
           offset: [
-            markerWidth / 2, // Center horizontally based on marker's width
+            0, // Center horizontally based on marker's width
             -screenHeight * 0.1, // Move the map up by 10% of the screen height to position marker at 40%
           ],
           essential: true,
         });
-      } else if (markerPosition.x < thresholdWidthLow || markerPosition.x > thresholdWidthHigh) {
-        // Adjust the map to center the marker horizontally (50% of screen width)
-        mapInstance.easeTo({
-          center: [restaurant.lng, restaurant.lat], // Keep the center of the map on the restaurant's coordinates
-          offset: [
-            -(screenWidth * 0.5 - markerWidth / 2), // Center horizontally based on marker's width
-            0, // No change in vertical positioning
-          ],
-          essential: true,
-        });
-      } else {
-        console.log("Marker is between 20% and 40% height, no adjustment needed");
       }
     }
   };

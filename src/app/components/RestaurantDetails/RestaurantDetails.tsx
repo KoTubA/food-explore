@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/redux/store";
 import { setSelectedRestaurant, closeRestaurantDetails } from "@/src/redux/slices/restaurantsSlice";
 import { IoClose } from "react-icons/io5";
-import { IoLocationSharp } from "react-icons/io5";
+import { FaLocationDot } from "react-icons/fa6";
 import { FaEarthAmericas } from "react-icons/fa6";
 import { FaGoogle } from "react-icons/fa";
 import { FaSeedling } from "react-icons/fa";
@@ -145,7 +145,7 @@ const RestaurantDetails = () => {
                   </div>
                   <div className="flex flex-col text-mediumGray text-sm border-b border-lightGray">
                     <div className="flex items-center space-x-4 p-4 border-t border-lightGray">
-                      <IoLocationSharp className="text-secondaryYellow flex-shrink-0" />
+                      <FaLocationDot className="text-secondaryYellow flex-shrink-0" />
                       {selectedRestaurant?.address ? <span>{selectedRestaurant.address}</span> : <span className="text-gray-500">Brak adresu</span>}
                     </div>
                     <div className="flex items-center space-x-4 p-4 border-t border-lightGray">

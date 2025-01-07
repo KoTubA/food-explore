@@ -18,6 +18,29 @@ export default {
         lato: ["var(--font-lato)"],
         roboto: ["var(--font-roboto)"],
       },
+      animation: {
+        bounceOnce: "bounce 1.2s 1",
+      },
+      keyframes: {
+        bounce: {
+          "0%": {
+            transform: "translateY(-25%)",
+            animationTimingFunction: "cubic-bezier(0.8, 0, 1, 1)",
+          },
+          "50%": {
+            transform: "translateY(0)",
+            animationTimingFunction: "cubic-bezier(0, 0, 0.2, 1)",
+          },
+          "75%": {
+            transform: "translateY(-15%)",
+            animationTimingFunction: "cubic-bezier(1, 0, 1, 1)",
+          },
+          "100%": {
+            transform: "translateY(0)",
+            animationTimingFunction: "cubic-bezier(0.8, 0, 1, 1)",
+          },
+        },
+      },
     },
   },
   plugins: [],
