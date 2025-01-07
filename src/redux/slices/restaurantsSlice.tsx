@@ -6,7 +6,7 @@ export interface Restaurant {
   address: string;
   lat: number;
   lng: number;
-  type?: string;
+  type: string;
   cuisine?: string[];
   foodCategories?: string[];
   dietaryStyles?: string[];

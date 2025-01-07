@@ -40,7 +40,7 @@ body {
   display: block;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 512px) {
   .maplibregl-ctrl-top-right .maplibregl-ctrl-group {
     display: block;
   }

@@ -1,23 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
-import { Map, NavigationControl, GeolocateControl, Marker } from "react-map-gl/maplibre";
+import { useEffect, useState } from "react";
+import { Map, NavigationControl, GeolocateControl } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setRestaurant, Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { RootState } from "@/src/redux/store";
 import { setSelectedRestaurant } from "@/src/redux/slices/restaurantsSlice";
+import CustomMarker from "@/src/app/components/FoodMap/CustomMarker";
 
 const spaceId = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
 const accessToken = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN;
 
 const FoodMap = () => {
+  const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
+
   const dispatch = useDispatch();
   const restaurants = useSelector((state: RootState) => state.restaurants.restaurant);
-
-  const setSelectedRestaurants = (restaurant: Restaurant) => {
-    dispatch(setSelectedRestaurant(restaurant));
-  };
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -74,11 +73,59 @@ const FoodMap = () => {
     fetchRestaurants();
   }, [dispatch]);
 
+  const handleMarkerClick = (restaurant: Restaurant) => {
+    dispatch(setSelectedRestaurant(restaurant));
+
+    if (mapInstance) {
+      const markerPosition = mapInstance.project([restaurant.lng, restaurant.lat]);
+      console.log(markerPosition);
+
+      // Calculate screen height and width (used to determine where the marker is positioned)
+      const screenHeight = window.innerHeight;
+      const screenWidth = window.innerWidth;
+
+      // Define thresholds for height (20% and 40% for vertical positioning)
+      const thresholdHeightLow = screenHeight * 0.2; // 20% height of the screen
+      const thresholdHeightTop = screenHeight * 0.4; // 80% height of the screen
+
+      // Define thresholds for width (20% and 80% for horizontal positioning)
+      const thresholdWidthLow = screenWidth * 0.2; // 20% width of the screen
+      const thresholdWidthHigh = screenWidth * 0.8; // 80% width of the screen
+
+      const markerWidth = 36; // Adjust based on your marker size (e.g., 36px for a 36px wide marker)
+
+      // If the marker is outside the 20% to 80% horizontal and vertical ranges, adjust the map
+      if (markerPosition.y < thresholdHeightLow || markerPosition.y > thresholdHeightTop || markerPosition.x < thresholdWidthLow || markerPosition.x > thresholdWidthHigh) {
+        mapInstance.easeTo({
+          center: [restaurant.lng, restaurant.lat], // Keep the center of the map on the restaurant's coordinates
+          offset: [
+            markerWidth / 2, // Center horizontally based on marker's width
+            -screenHeight * 0.1, // Move the map up by 10% of the screen height to position marker at 40%
+          ],
+          essential: true,
+        });
+      } else if (markerPosition.x < thresholdWidthLow || markerPosition.x > thresholdWidthHigh) {
+        // Adjust the map to center the marker horizontally (50% of screen width)
+        mapInstance.easeTo({
+          center: [restaurant.lng, restaurant.lat], // Keep the center of the map on the restaurant's coordinates
+          offset: [
+            -(screenWidth * 0.5 - markerWidth / 2), // Center horizontally based on marker's width
+            0, // No change in vertical positioning
+          ],
+          essential: true,
+        });
+      } else {
+        console.log("Marker is between 20% and 40% height, no adjustment needed");
+      }
+    }
+  };
+
   const mapStyle = "https://tiles.openfreemap.org/styles/liberty"; // URL to the OpenFreeMap style
 
   return (
     <div className="w-full h-full">
       <Map
+        onLoad={(e) => setMapInstance(e.target)}
         style={{ width: "100%", height: "100%" }}
         mapStyle={mapStyle}
         initialViewState={{
@@ -94,11 +141,10 @@ const FoodMap = () => {
         {/* Add markers for restaurants */}
         {restaurants.length > 0 &&
           restaurants.map((restaurant, index) => (
-            <Marker
+            <CustomMarker
               key={index} // Unique key
-              longitude={restaurant.lng}
-              latitude={restaurant.lat}
-              onClick={() => setSelectedRestaurants(restaurant)} // Set selected restaurant on click
+              restaurant={restaurant}
+              onClick={() => handleMarkerClick(restaurant)} // Set selected restaurant on click
             />
           ))}
       </Map>
