@@ -47,6 +47,11 @@ const RestaurantDetails = () => {
   useEffect(() => {
     if (selectedRestaurant) {
       router.push(`?restaurant=${selectedRestaurant.slug}`);
+
+      // Reset the sheet to snap point 1 when a new restaurant is selected
+      if (detailsSheetRef.current) {
+        detailsSheetRef.current.snapTo(1); // This ensures the sheet view resets to the middle position
+      }
     }
   }, [selectedRestaurant, router]);
 
@@ -60,108 +65,110 @@ const RestaurantDetails = () => {
       <Sheet.Container>
         <Sheet.Header />
         <Sheet.Content>
-          <Sheet.Scroller draggableAt="both">
-            {selectedRestaurant ? (
-              <>
-                <div className="flex flex-col px-4 pb-4 space-y-4">
-                  <div className="flex items-start justify-between space-x-4">
-                    <div className="flex flex-col space-y-1">
-                      <h2 className="text-xl font-medium">{selectedRestaurant.name}</h2>
-                      <div className="text-sm text-mediumGray flex items-center space-x-2">
-                        {selectedRestaurant.type && (
-                          <span className="flex items-center">
-                            <span>{selectedRestaurant.type}</span>
-                          </span>
-                        )}
-                        {selectedRestaurant.price && (
-                          <span className="flex items-center space-x-2">
-                            <span>•</span>
-                            <span>{selectedRestaurant.price}</span>
-                          </span>
-                        )}
-                        {selectedRestaurant.dietaryStyles && selectedRestaurant.dietaryStyles.length > 0 && (
-                          <>
-                            {selectedRestaurant.dietaryStyles.map((category) => {
-                              let icon;
-                              switch (category) {
-                                case "Wegetariańska":
-                                  icon = <FaLeaf className="text-primaryGreen" />;
-                                  break;
-                                case "Wegańska":
-                                  icon = <FaSeedling className="text-primaryGreen" />;
-                                  break;
-                                case "Bezglutenowa":
-                                  icon = <LuWheatOff className="text-primaryRed" />;
-                                  break;
-                                default:
-                                  icon = null;
-                              }
+          {selectedRestaurant ? (
+            <>
+              <div className="flex items-start justify-between space-x-4 px-4 pb-4">
+                <div className="flex flex-col space-y-1">
+                  <h2 className="text-xl font-medium">{selectedRestaurant.name}</h2>
+                  <div className="text-sm text-mediumGray flex items-center space-x-2">
+                    {selectedRestaurant.type && (
+                      <span className="flex items-center">
+                        <span>{selectedRestaurant.type}</span>
+                      </span>
+                    )}
+                    {selectedRestaurant.price && (
+                      <span className="flex items-center space-x-2">
+                        <span>•</span>
+                        <span>{selectedRestaurant.price}</span>
+                      </span>
+                    )}
+                    {selectedRestaurant.dietaryStyles && selectedRestaurant.dietaryStyles.length > 0 && (
+                      <>
+                        {selectedRestaurant.dietaryStyles.map((category) => {
+                          let icon;
+                          switch (category) {
+                            case "Wegetariańska":
+                              icon = <FaLeaf className="text-primaryGreen" />;
+                              break;
+                            case "Wegańska":
+                              icon = <FaSeedling className="text-primaryGreen" />;
+                              break;
+                            case "Bezglutenowa":
+                              icon = <LuWheatOff className="text-primaryRed" />;
+                              break;
+                            default:
+                              icon = null;
+                          }
 
-                              return (
-                                <span key={category} className="flex items-center space-x-2">
-                                  <span>•</span>
-                                  {icon}
-                                </span>
-                              );
-                            })}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex space-x-1">
-                      {selectedRestaurant.googleMapsLink && (
-                        <Link href={selectedRestaurant.googleMapsLink} target="_blank" rel="noopener noreferrer" className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition">
-                          <FaGoogle className="w-4 h-4" />
-                        </Link>
-                      )}
-                      {selectedRestaurant.link && (
-                        <Link href={selectedRestaurant.link} target="_blank" rel="noopener noreferrer" className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition">
-                          <FaEarthAmericas className="w-4 h-4" />
-                        </Link>
-                      )}
-                      <button onClick={handleCloseDetails} className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full">
-                        <IoClose />
-                      </button>
-                    </div>
+                          return (
+                            <span key={category} className="flex items-center space-x-2">
+                              <span>•</span>
+                              {icon}
+                            </span>
+                          );
+                        })}
+                      </>
+                    )}
                   </div>
-                  <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
-                    {selectedRestaurant.image ? <Image src={selectedRestaurant.image.url} alt={selectedRestaurant.name} className="object-cover" fill /> : <span>No media</span>}
-                  </div>
-                  {selectedRestaurant.foodCategories && selectedRestaurant.foodCategories.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {selectedRestaurant.foodCategories.map((category, i) => (
-                        <span key={i} className="bg-lightGray text-darkGray text-xs font-medium px-2 py-1 rounded-xl">
-                          {category}
-                        </span>
-                      ))}
-                    </div>
+                </div>
+                <div className="flex space-x-1">
+                  {selectedRestaurant.googleMapsLink && (
+                    <Link href={selectedRestaurant.googleMapsLink} target="_blank" rel="noopener noreferrer" className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition">
+                      <FaGoogle className="w-4 h-4" />
+                    </Link>
                   )}
+                  {selectedRestaurant.link && (
+                    <Link href={selectedRestaurant.link} target="_blank" rel="noopener noreferrer" className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition">
+                      <FaEarthAmericas className="w-4 h-4" />
+                    </Link>
+                  )}
+                  <button onClick={handleCloseDetails} className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full">
+                    <IoClose />
+                  </button>
                 </div>
-                <div className="flex flex-col text-mediumGray text-sm border-b border-lightGray">
-                  <div className="flex items-center space-x-4 p-4 border-t border-lightGray">
-                    <IoLocationSharp className="text-secondaryYellow flex-shrink-0" />
-                    {selectedRestaurant?.address ? <span>{selectedRestaurant.address}</span> : <span className="text-gray-500">Brak adresu</span>}
+              </div>
+              <Sheet.Scroller draggableAt="both">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex flex-col px-4 space-y-4">
+                    <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
+                      {selectedRestaurant.image ? <Image src={selectedRestaurant.image.url} alt={selectedRestaurant.name} className="object-cover" fill /> : <span>No media</span>}
+                    </div>
+                    {selectedRestaurant.foodCategories && selectedRestaurant.foodCategories.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedRestaurant.foodCategories.map((category, i) => (
+                          <span key={i} className="bg-lightGray text-darkGray text-xs font-medium px-2 py-1 rounded-xl">
+                            {category}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-4 p-4 border-t border-lightGray">
-                    <FaUtensilSpoon className="text-secondaryYellow flex-shrink-0" />
-                    {selectedRestaurant?.cuisine?.length ? <span>{selectedRestaurant.cuisine.join(", ")}</span> : <span className="text-gray-500">Brak typu kuchni</span>}
+                  <div className="flex flex-col text-mediumGray text-sm border-b border-lightGray">
+                    <div className="flex items-center space-x-4 p-4 border-t border-lightGray">
+                      <IoLocationSharp className="text-secondaryYellow flex-shrink-0" />
+                      {selectedRestaurant?.address ? <span>{selectedRestaurant.address}</span> : <span className="text-gray-500">Brak adresu</span>}
+                    </div>
+                    <div className="flex items-center space-x-4 p-4 border-t border-lightGray">
+                      <FaUtensilSpoon className="text-secondaryYellow flex-shrink-0" />
+                      {selectedRestaurant?.cuisine?.length ? <span>{selectedRestaurant.cuisine.join(", ")}</span> : <span className="text-gray-500">Brak typu kuchni</span>}
+                    </div>
+                    <div className="flex items-center space-x-4 p-4 border-t border-lightGray">
+                      <FaMoneyBills className="text-secondaryYellow flex-shrink-0" />
+                      {selectedRestaurant?.price ? <span>{selectedRestaurant.price}</span> : <span className="text-gray-500">Brak informacji o cenach</span>}
+                    </div>
+                    <Link href={selectedRestaurant?.link || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-4 p-4 border-t border-lightGray">
+                      <FaEarthAmericas className="text-secondaryYellow flex-shrink-0" />
+                      {selectedRestaurant?.link ? <span className="truncate underline">{selectedRestaurant.link}</span> : <span className="text-gray-500">Brak linku</span>}
+                    </Link>
+                    <Link href={selectedRestaurant?.googleMapsLink || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-4 p-4 border-t border-lightGray">
+                      <FaGoogle className="text-secondaryYellow flex-shrink-0" />
+                      {selectedRestaurant?.googleMapsLink ? <span className="truncate underline">{selectedRestaurant.googleMapsLink}</span> : <span className="text-gray-500 un">Brak linku</span>}
+                    </Link>
                   </div>
-                  <div className="flex items-center space-x-4 p-4 border-t border-lightGray">
-                    <FaMoneyBills className="text-secondaryYellow flex-shrink-0" />
-                    {selectedRestaurant?.price ? <span>{selectedRestaurant.price}</span> : <span className="text-gray-500">Brak informacji o cenach</span>}
-                  </div>
-                  <Link href={selectedRestaurant?.link || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-4 p-4 border-t border-lightGray">
-                    <FaEarthAmericas className="text-secondaryYellow flex-shrink-0" />
-                    {selectedRestaurant?.link ? <span className="truncate underline">{selectedRestaurant.link}</span> : <span className="text-gray-500">Brak linku</span>}
-                  </Link>
-                  <Link href={selectedRestaurant?.googleMapsLink || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-4 p-4 border-t border-lightGray">
-                    <FaGoogle className="text-secondaryYellow flex-shrink-0" />
-                    {selectedRestaurant?.googleMapsLink ? <span className="truncate underline">{selectedRestaurant.googleMapsLink}</span> : <span className="text-gray-500 un">Brak linku</span>}
-                  </Link>
                 </div>
-              </>
-            ) : null}
-          </Sheet.Scroller>
+              </Sheet.Scroller>
+            </>
+          ) : null}
         </Sheet.Content>
       </Sheet.Container>
     </Sheet>
