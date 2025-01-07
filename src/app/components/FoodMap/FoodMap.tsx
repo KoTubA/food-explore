@@ -17,6 +17,7 @@ const FoodMap = () => {
 
   const dispatch = useDispatch();
   const restaurants = useSelector((state: RootState) => state.restaurants.restaurant);
+  const selectedRestaurant = useSelector((state: RootState) => state.restaurants.selectedRestaurant);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -72,11 +73,10 @@ const FoodMap = () => {
     fetchRestaurants();
   }, [dispatch]);
 
-  const handleMarkerClick = (restaurant: Restaurant) => {
-    dispatch(setSelectedRestaurant(restaurant));
-
-    if (mapInstance) {
-      const markerPosition = mapInstance.project([restaurant.lng, restaurant.lat]);
+  // Center the map when selectedRestaurant changes
+  useEffect(() => {
+    if (selectedRestaurant && mapInstance) {
+      const markerPosition = mapInstance.project([selectedRestaurant.lng, selectedRestaurant.lat]);
 
       // Calculate screen height and width (used to determine where the marker is positioned)
       const screenHeight = window.innerHeight;
@@ -93,15 +93,19 @@ const FoodMap = () => {
       // If the marker is outside the 20% to 80% horizontal and vertical ranges, adjust the map
       if (markerPosition.y < thresholdHeightLow || markerPosition.y > thresholdHeightTop || markerPosition.x < thresholdWidthLow || markerPosition.x > thresholdWidthHigh) {
         mapInstance.easeTo({
-          center: [restaurant.lng, restaurant.lat], // Keep the center of the map on the restaurant's coordinates
+          center: [selectedRestaurant.lng, selectedRestaurant.lat], // Keep the center of the map on the restaurant's coordinates
           offset: [
             0, // Center horizontally based on marker's width
-            -screenHeight * 0.1, // Move the map up by 10% of the screen height to position marker at 40%
+            -screenHeight * 0.25, // Move the map up by 25% of the screen height to position marker at 25%
           ],
           essential: true,
         });
       }
     }
+  }, [selectedRestaurant, mapInstance]);
+
+  const handleMarkerClick = (restaurant: Restaurant) => {
+    dispatch(setSelectedRestaurant(restaurant));
   };
 
   const mapStyle = "https://tiles.openfreemap.org/styles/liberty"; // URL to the OpenFreeMap style
