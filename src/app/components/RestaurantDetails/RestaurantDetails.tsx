@@ -3,20 +3,16 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Sheet, type SheetRef } from "react-modal-sheet";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/redux/store";
 import { setSelectedRestaurant, closeRestaurantDetails } from "@/src/redux/slices/restaurantsSlice";
 import { IoClose } from "react-icons/io5";
-import { FaLocationDot } from "react-icons/fa6";
-import { FaEarthAmericas } from "react-icons/fa6";
-import { FaGoogle } from "react-icons/fa";
-import { FaSeedling } from "react-icons/fa";
-import { FaLeaf } from "react-icons/fa";
+import { FaRegCopy, FaGoogle, FaSeedling, FaLeaf, FaUtensilSpoon } from "react-icons/fa";
+import { FaLocationDot, FaEarthAmericas, FaMoneyBills } from "react-icons/fa6";
 import { LuWheatOff } from "react-icons/lu";
-import { FaMoneyBills } from "react-icons/fa6";
-import { FaUtensilSpoon } from "react-icons/fa";
+import { FiCheck } from "react-icons/fi";
 
 const RestaurantDetails = () => {
   const router = useRouter();
@@ -24,6 +20,15 @@ const RestaurantDetails = () => {
   const searchParams = useSearchParams();
   const restaurantSlug = searchParams.get("restaurant");
   const dispatch = useDispatch();
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyClick = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   const restaurants = useSelector((state: RootState) => state.restaurants.restaurant);
   const selectedRestaurant = useSelector((state: RootState) => state.restaurants.selectedRestaurant);
@@ -112,25 +117,28 @@ const RestaurantDetails = () => {
                   </div>
                 </div>
                 <div className="flex space-x-1">
+                  <button onClick={handleCopyClick} className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                    {copied ? <FiCheck className="text-primaryGreen" /> : <FaRegCopy size="100%" />}
+                  </button>
                   {selectedRestaurant.googleMapsLink && (
-                    <Link href={selectedRestaurant.googleMapsLink} target="_blank" rel="noopener noreferrer" className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition">
-                      <FaGoogle className="w-4 h-4" />
+                    <Link href={selectedRestaurant.googleMapsLink} target="_blank" rel="noopener noreferrer" className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                      <FaGoogle size="100%" />
                     </Link>
                   )}
                   {selectedRestaurant.link && (
-                    <Link href={selectedRestaurant.link} target="_blank" rel="noopener noreferrer" className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition">
-                      <FaEarthAmericas className="w-4 h-4" />
+                    <Link href={selectedRestaurant.link} target="_blank" rel="noopener noreferrer" className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                      <FaEarthAmericas size="100%" />
                     </Link>
                   )}
-                  <button onClick={handleCloseDetails} className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full">
-                    <IoClose />
+                  <button onClick={handleCloseDetails} className="w-6 h-6 p-[2px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                    <IoClose size="100%" />
                   </button>
                 </div>
               </div>
               <Sheet.Scroller draggableAt="both">
                 <div className="flex flex-col space-y-4">
                   <div className="flex flex-col px-4 space-y-4">
-                    <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
+                    <div className="bg-lightGray flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
                       {selectedRestaurant.image ? <Image src={selectedRestaurant.image.url} alt={selectedRestaurant.name} className="object-cover" fill /> : <span>No media</span>}
                     </div>
                     {selectedRestaurant.foodCategories && selectedRestaurant.foodCategories.length > 0 && (
