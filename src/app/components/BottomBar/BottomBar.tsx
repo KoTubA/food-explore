@@ -130,6 +130,7 @@ const BottomBar = () => {
           </Sheet.Content>
         </Sheet.Container>
       </Sheet>
+      {snapPosition === 0 && !isRestaurantDetailsOpen && <div className="fixed inset-0 w-full h-full bg-black/20 z-10"></div>}
       <RestaurantDetails />
     </>
   );
