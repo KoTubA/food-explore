@@ -17,7 +17,7 @@ const snapPoints = [0.95, 0.5, 100];
 
 const BottomBar = () => {
   const dispatch = useDispatch();
-  const restaurants = useSelector((state: RootState) => state.restaurants.restaurant);
+  const restaurants = useSelector((state: RootState) => state.restaurants.filteredRestaurants);
   const isRestaurantDetailsOpen = useSelector((state: RootState) => state.restaurants.isRestaurantDetailsOpen);
   const snapPosition = useSelector((state: RootState) => state.restaurants.snapPosition);
 
@@ -63,7 +63,7 @@ const BottomBar = () => {
               </button>
             </div>
             <Sheet.Scroller draggableAt="both" className="flex flex-col">
-              {restaurants.length > 0 &&
+              {restaurants.length > 0 ? (
                 restaurants.map((restaurant, index) => (
                   <div key={index} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(restaurant)}>
                     <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
@@ -122,7 +122,10 @@ const BottomBar = () => {
                       )}
                     </div>
                   </div>
-                ))}
+                ))
+              ) : (
+                <div className="flex justify-center items-center text-mediumGray text-sm py-8">Brak miejsc w tym regionie.</div>
+              )}
             </Sheet.Scroller>
           </Sheet.Content>
         </Sheet.Container>

@@ -19,6 +19,7 @@ export interface Restaurant {
 
 interface RestaurantState {
   restaurant: Restaurant[];
+  filteredRestaurants: Restaurant[];
   selectedRestaurant: Restaurant | null;
   isRestaurantDetailsOpen: boolean;
   snapPosition: number;
@@ -26,6 +27,7 @@ interface RestaurantState {
 
 const initialState: RestaurantState = {
   restaurant: [],
+  filteredRestaurants: [],
   selectedRestaurant: null,
   isRestaurantDetailsOpen: false,
   snapPosition: 1,
@@ -37,6 +39,9 @@ const restaurantsSlice = createSlice({
   reducers: {
     setRestaurant: (state, action: PayloadAction<Restaurant[]>) => {
       state.restaurant = action.payload;
+    },
+    setFilteredRestaurants: (state, action: PayloadAction<Restaurant[]>) => {
+      state.filteredRestaurants = action.payload; // Aktualizacja odfiltrowanych restauracji
     },
     setSelectedRestaurant: (state, action: PayloadAction<Restaurant>) => {
       state.selectedRestaurant = action.payload;
@@ -52,5 +57,6 @@ const restaurantsSlice = createSlice({
   },
 });
 
-export const { setRestaurant, setSelectedRestaurant, closeRestaurantDetails, setSnapPosition } = restaurantsSlice.actions;
+export const { setRestaurant, setFilteredRestaurants, setSelectedRestaurant, closeRestaurantDetails, setSnapPosition } = restaurantsSlice.actions;
+
 export default restaurantsSlice.reducer;

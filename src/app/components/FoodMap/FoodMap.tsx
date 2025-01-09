@@ -6,7 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setRestaurant, Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { RootState } from "@/src/redux/store";
-import { setSelectedRestaurant } from "@/src/redux/slices/restaurantsSlice";
+import { setSelectedRestaurant, setFilteredRestaurants } from "@/src/redux/slices/restaurantsSlice";
 import CustomMarker from "@/src/app/components/FoodMap/CustomMarker";
 
 const spaceId = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
@@ -103,6 +103,38 @@ const FoodMap = () => {
       }
     }
   }, [selectedRestaurant, mapInstance]);
+
+  useEffect(() => {
+    const updateFilteredRestaurants = () => {
+      if (!mapInstance) return;
+
+      // Get the current map bounds
+      const bounds = mapInstance.getBounds();
+
+      // Filter restaurants to include only those within the visible map bounds
+      const filtered = restaurants.filter((restaurant) => {
+        return restaurant.lng >= bounds.getWest() && restaurant.lng <= bounds.getEast() && restaurant.lat >= bounds.getSouth() && restaurant.lat <= bounds.getNorth();
+      });
+
+      // Update the filtered restaurants in the Redux store
+      dispatch(setFilteredRestaurants(filtered));
+    };
+
+    if (mapInstance) {
+      // Add a listener to update the filtered restaurants when the map movement ends
+      mapInstance.on("moveend", updateFilteredRestaurants);
+
+      // Perform an initial filtering when the map is loaded
+      updateFilteredRestaurants();
+    }
+
+    return () => {
+      if (mapInstance) {
+        // Remove the listener when the component is unmounted
+        mapInstance.off("moveend", updateFilteredRestaurants);
+      }
+    };
+  }, [mapInstance, restaurants, dispatch]);
 
   const handleMarkerClick = (restaurant: Restaurant) => {
     dispatch(setSelectedRestaurant(restaurant));
