@@ -72,67 +72,67 @@ const RestaurantDetails = () => {
         <Sheet.Content>
           {selectedRestaurant ? (
             <>
-              <div className="flex items-start justify-between space-x-4 px-4 pb-4">
-                <div className="flex flex-col space-y-1">
+              <div className="flex flex-col px-4 pb-4 space-y-1">
+                <div className="flex items-start justify-between">
                   <h2 className="text-xl font-medium">{selectedRestaurant.name}</h2>
-                  <div className="text-sm text-mediumGray flex items-center space-x-2">
-                    {selectedRestaurant.type && (
-                      <span className="flex items-center">
-                        <span>{selectedRestaurant.type}</span>
-                      </span>
+                  <div className="flex space-x-1">
+                    <button onClick={handleCopyClick} className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                      {copied ? <FiCheck className="text-primaryGreen" /> : <FaRegCopy size="100%" />}
+                    </button>
+                    {selectedRestaurant.googleMapsLink && (
+                      <Link href={selectedRestaurant.googleMapsLink} target="_blank" rel="noopener noreferrer" className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                        <FaGoogle size="100%" />
+                      </Link>
                     )}
-                    {selectedRestaurant.price && (
-                      <span className="flex items-center space-x-2">
-                        <span>•</span>
-                        <span>{selectedRestaurant.price}</span>
-                      </span>
+                    {selectedRestaurant.link && (
+                      <Link href={selectedRestaurant.link} target="_blank" rel="noopener noreferrer" className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                        <FaEarthAmericas size="100%" />
+                      </Link>
                     )}
-                    {selectedRestaurant.dietaryStyles && selectedRestaurant.dietaryStyles.length > 0 && (
-                      <>
-                        {selectedRestaurant.dietaryStyles.map((category) => {
-                          let icon;
-                          switch (category) {
-                            case "Wegetariańska":
-                              icon = <FaLeaf className="text-primaryGreen" />;
-                              break;
-                            case "Wegańska":
-                              icon = <FaSeedling className="text-primaryGreen" />;
-                              break;
-                            case "Bezglutenowa":
-                              icon = <LuWheatOff className="text-primaryRed" />;
-                              break;
-                            default:
-                              icon = null;
-                          }
-
-                          return (
-                            <span key={category} className="flex items-center space-x-2">
-                              <span>•</span>
-                              {icon}
-                            </span>
-                          );
-                        })}
-                      </>
-                    )}
+                    <button onClick={handleCloseDetails} className="w-6 h-6 p-[2px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                      <IoClose size="100%" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex space-x-1">
-                  <button onClick={handleCopyClick} className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
-                    {copied ? <FiCheck className="text-primaryGreen" /> : <FaRegCopy size="100%" />}
-                  </button>
-                  {selectedRestaurant.googleMapsLink && (
-                    <Link href={selectedRestaurant.googleMapsLink} target="_blank" rel="noopener noreferrer" className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
-                      <FaGoogle size="100%" />
-                    </Link>
+                <div className="text-sm text-mediumGray flex items-center space-x-2">
+                  {selectedRestaurant.type && (
+                    <span className="flex items-center">
+                      <span>{selectedRestaurant.type}</span>
+                    </span>
                   )}
-                  {selectedRestaurant.link && (
-                    <Link href={selectedRestaurant.link} target="_blank" rel="noopener noreferrer" className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
-                      <FaEarthAmericas size="100%" />
-                    </Link>
+                  {selectedRestaurant.price && (
+                    <span className="flex items-center space-x-2">
+                      <span>•</span>
+                      <span>{selectedRestaurant.price}</span>
+                    </span>
                   )}
-                  <button onClick={handleCloseDetails} className="w-6 h-6 p-[2px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
-                    <IoClose size="100%" />
-                  </button>
+                  {selectedRestaurant.dietaryStyles && selectedRestaurant.dietaryStyles.length > 0 && (
+                    <>
+                      {selectedRestaurant.dietaryStyles.map((category) => {
+                        let icon;
+                        switch (category) {
+                          case "Wegetariańska":
+                            icon = <FaLeaf className="text-primaryGreen" />;
+                            break;
+                          case "Wegańska":
+                            icon = <FaSeedling className="text-primaryGreen" />;
+                            break;
+                          case "Bezglutenowa":
+                            icon = <LuWheatOff className="text-primaryRed" />;
+                            break;
+                          default:
+                            icon = null;
+                        }
+
+                        return (
+                          <span key={category} className="flex items-center space-x-2">
+                            <span>•</span>
+                            {icon}
+                          </span>
+                        );
+                      })}
+                    </>
+                  )}
                 </div>
               </div>
               <Sheet.Scroller draggableAt="both">
