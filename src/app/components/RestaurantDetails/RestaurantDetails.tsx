@@ -29,7 +29,6 @@ const RestaurantDetails = () => {
   };
 
   const handleCopyClick = () => {
-    console.log(detailsSheetRef);
     navigator.clipboard.writeText(window.location.href).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);

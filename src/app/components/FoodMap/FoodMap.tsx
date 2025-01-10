@@ -12,6 +12,7 @@ const accessToken = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN;
 
 const FoodMap = () => {
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
+  const [initialFilterApplied, setInitialFilterApplied] = useState(false);
 
   const dispatch = useDispatch();
   const restaurants = useSelector((state: RootState) => state.restaurants.restaurant);
@@ -113,17 +114,18 @@ const FoodMap = () => {
   }, [selectedRestaurant, mapInstance]);
 
   const updateFilteredRestaurants = () => {
-    if (!mapInstance) return;
+    if (!mapInstance || (isRestaurantDetailsOpenRef.current && initialFilterApplied)) {
+      return;
+    } else {
+      setInitialFilterApplied(true);
+    }
 
     const bounds = mapInstance.getBounds();
     const screenHeight = window.innerHeight;
 
-    // Use the correct snapPosition based on whether restaurant details are open
-    const snapPositionToUse = isRestaurantDetailsOpenRef.current ? snapPositionDetailsRef.current : snapPositionRef.current;
-
     let bottomBarHeight = 0;
-    if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
-    if (snapPositionToUse === 2) bottomBarHeight = 100;
+    if (snapPositionDetailsRef.current === 1) bottomBarHeight = screenHeight * 0.5;
+    if (snapPositionDetailsRef.current === 2) bottomBarHeight = 100;
 
     const adjustedSouthBound = mapInstance.unproject([0, screenHeight - bottomBarHeight]).lat;
 
