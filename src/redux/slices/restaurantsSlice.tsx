@@ -23,6 +23,7 @@ interface RestaurantState {
   selectedRestaurant: Restaurant | null;
   isRestaurantDetailsOpen: boolean;
   snapPosition: number;
+  snapPositionDetails: number;
 }
 
 const initialState: RestaurantState = {
@@ -31,6 +32,7 @@ const initialState: RestaurantState = {
   selectedRestaurant: null,
   isRestaurantDetailsOpen: false,
   snapPosition: 1,
+  snapPositionDetails: 1,
 };
 
 const restaurantsSlice = createSlice({
@@ -54,9 +56,12 @@ const restaurantsSlice = createSlice({
     setSnapPosition: (state, action: PayloadAction<number>) => {
       state.snapPosition = action.payload;
     },
+    setSnapPositionDetails: (state, action: PayloadAction<number>) => {
+      state.snapPositionDetails = action.payload;
+    },
   },
 });
 
-export const { setRestaurant, setFilteredRestaurants, setSelectedRestaurant, closeRestaurantDetails, setSnapPosition } = restaurantsSlice.actions;
+export const { setRestaurant, setFilteredRestaurants, setSelectedRestaurant, closeRestaurantDetails, setSnapPosition, setSnapPositionDetails } = restaurantsSlice.actions;
 
 export default restaurantsSlice.reducer;

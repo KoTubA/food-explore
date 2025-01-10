@@ -7,7 +7,7 @@ import { useRef, useEffect, useState } from "react";
 import { Sheet, type SheetRef } from "react-modal-sheet";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/redux/store";
-import { setSelectedRestaurant, closeRestaurantDetails } from "@/src/redux/slices/restaurantsSlice";
+import { setSelectedRestaurant, closeRestaurantDetails, setSnapPositionDetails } from "@/src/redux/slices/restaurantsSlice";
 import { IoClose } from "react-icons/io5";
 import { FaRegCopy, FaGoogle, FaSeedling, FaLeaf, FaUtensilSpoon } from "react-icons/fa";
 import { FaLocationDot, FaEarthAmericas, FaMoneyBills } from "react-icons/fa6";
@@ -22,11 +22,10 @@ const RestaurantDetails = () => {
   const dispatch = useDispatch();
 
   const detailsSheetRef = useRef<SheetRef>(null);
-  const [currentSnap, setCurrentSnap] = useState(1);
   const [copied, setCopied] = useState(false);
 
   const handleSnap = (snapIndex: number) => {
-    setCurrentSnap(snapIndex);
+    dispatch(setSnapPositionDetails(snapIndex));
   };
 
   const handleCopyClick = () => {
@@ -40,6 +39,7 @@ const RestaurantDetails = () => {
   const restaurants = useSelector((state: RootState) => state.restaurants.restaurant);
   const selectedRestaurant = useSelector((state: RootState) => state.restaurants.selectedRestaurant);
   const isRestaurantDetailsOpen = useSelector((state: RootState) => state.restaurants.isRestaurantDetailsOpen);
+  const snapPositionDetails = useSelector((state: RootState) => state.restaurants.snapPositionDetails);
 
   useEffect(() => {
     // Check if the 'restaurant' parameter exists in the URL and if the restaurant list is available
@@ -72,7 +72,7 @@ const RestaurantDetails = () => {
 
   return (
     <>
-      <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onSnap={handleSnap} onClose={() => {}} snapPoints={[0.95, 0.5, 100]} initialSnap={1}>
+      <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onSnap={handleSnap} onClose={() => {}} snapPoints={[0.95, 0.5, 100]} initialSnap={snapPositionDetails}>
         <Sheet.Container>
           <Sheet.Header />
           <Sheet.Content>
@@ -186,7 +186,7 @@ const RestaurantDetails = () => {
           </Sheet.Content>
         </Sheet.Container>
       </Sheet>
-      {currentSnap === 0 && <div className="fixed inset-0 w-full h-full bg-black/20 z-10"></div>}
+      {snapPositionDetails === 0 && <div className="fixed inset-0 w-full h-full bg-black/20 z-10"></div>}
     </>
   );
 };

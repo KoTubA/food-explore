@@ -18,13 +18,25 @@ const FoodMap = () => {
   const filteredRestaurants = useSelector((state: RootState) => state.restaurants.filteredRestaurants);
   const selectedRestaurant = useSelector((state: RootState) => state.restaurants.selectedRestaurant);
   const snapPosition = useSelector((state: RootState) => state.restaurants.snapPosition);
+  const snapPositionDetails = useSelector((state: RootState) => state.restaurants.snapPositionDetails);
+  const isRestaurantDetailsOpen = useSelector((state: RootState) => state.restaurants.isRestaurantDetailsOpen);
 
-  // Ref to store the latest snapPosition
+  // Ref to store the latest snapPosition, snapPositionDetails, isRestaurantDetailsOpen
   const snapPositionRef = useRef(snapPosition);
+  const snapPositionDetailsRef = useRef(snapPositionDetails);
+  const isRestaurantDetailsOpenRef = useRef(isRestaurantDetailsOpen);
 
   useEffect(() => {
-    snapPositionRef.current = snapPosition; // Update ref whenever snapPosition changes
+    snapPositionRef.current = snapPosition;
   }, [snapPosition]);
+
+  useEffect(() => {
+    snapPositionDetailsRef.current = snapPositionDetails;
+  }, [snapPositionDetails]);
+
+  useEffect(() => {
+    isRestaurantDetailsOpenRef.current = isRestaurantDetailsOpen;
+  }, [isRestaurantDetailsOpen]);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -106,10 +118,12 @@ const FoodMap = () => {
     const bounds = mapInstance.getBounds();
     const screenHeight = window.innerHeight;
 
-    // Use the latest snapPosition from ref
+    // Use the correct snapPosition based on whether restaurant details are open
+    const snapPositionToUse = isRestaurantDetailsOpenRef.current ? snapPositionDetailsRef.current : snapPositionRef.current;
+
     let bottomBarHeight = 0;
-    if (snapPositionRef.current === 1) bottomBarHeight = screenHeight * 0.5;
-    if (snapPositionRef.current === 2) bottomBarHeight = 100;
+    if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
+    if (snapPositionToUse === 2) bottomBarHeight = 100;
 
     const adjustedSouthBound = mapInstance.unproject([0, screenHeight - bottomBarHeight]).lat;
 
@@ -131,6 +145,7 @@ const FoodMap = () => {
         mapInstance.off("moveend", updateFilteredRestaurants);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapInstance]);
 
   const handleMarkerClick = (restaurant: Restaurant) => {
