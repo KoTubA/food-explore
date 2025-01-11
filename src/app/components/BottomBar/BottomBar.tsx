@@ -74,7 +74,7 @@ const BottomBar = () => {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     // If the related target is the clear button, prevent onBlur logic
     if ((e.relatedTarget as HTMLElement)?.id === "clear-button") return;
-    setTimeout(() => setInputFocused(false), 0);
+    setTimeout(() => setInputFocused(false), 100);
   };
 
   const handleSelectRestaurant = (restaurant: Restaurant) => {
@@ -121,19 +121,16 @@ const BottomBar = () => {
                   </button>
                 )}
               </div>
+
               {/* Cancel button */}
-              {inputFocused && (
-                <button className="flex justify-center items-center min-w-10 h-10 rounded-lg shadow-sm" onClick={handleCancelSearch}>
-                  <span className="text-darkGray">Anuluj</span>
-                </button>
-              )}
+              <button className={`justify-center items-center min-w-10 h-10 rounded-lg shadow-sm ${inputFocused ? "flex" : "hidden"}`} onClick={handleCancelSearch}>
+                <span className="text-darkGray">Anuluj</span>
+              </button>
 
               {/* Filter button */}
-              {!inputFocused && (
-                <button className="flex justify-center items-center bg-secondaryYellow w-10 h-10 rounded-lg shadow-sm" onClick={() => snapToList(0)}>
-                  <FiFilter className="text-white" />
-                </button>
-              )}
+              <button className={`justify-center items-center bg-secondaryYellow w-10 h-10 rounded-lg shadow-sm ${inputFocused ? "hidden" : "flex"}`} onClick={() => snapToList(0)}>
+                <FiFilter className="text-white" />
+              </button>
             </div>
             <Sheet.Scroller draggableAt="both" className="flex flex-col">
               {visibleRestaurants.length > 0 ? (
