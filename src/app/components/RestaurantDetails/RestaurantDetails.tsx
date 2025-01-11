@@ -94,7 +94,7 @@ const RestaurantDetails = () => {
                           <FaEarthAmericas size="100%" />
                         </Link>
                       )}
-                      <button onClick={handleCloseDetails} className="w-6 h-6 p-[2px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                      <button onClick={handleCloseDetails} className="w-6 h-6 p-[3px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
                         <IoClose size="100%" />
                       </button>
                     </div>

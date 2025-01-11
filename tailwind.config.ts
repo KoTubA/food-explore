@@ -20,6 +20,7 @@ export default {
       },
       animation: {
         bounceOnce: "bounce 1.2s 1",
+        fadeIn: "fadeIn 0.15s ease-in",
       },
       keyframes: {
         bounce: {
@@ -39,6 +40,10 @@ export default {
             transform: "translateY(0)",
             animationTimingFunction: "cubic-bezier(0.8, 0, 1, 1)",
           },
+        },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
         },
       },
     },

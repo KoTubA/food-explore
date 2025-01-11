@@ -3,25 +3,28 @@
 import Image from "next/image";
 import { Sheet, type SheetRef } from "react-modal-sheet";
 import { useState, useRef } from "react";
-import { IoSearch } from "react-icons/io5";
+import { IoSearch, IoClose } from "react-icons/io5";
 import { FiFilter } from "react-icons/fi";
 import { FaSeedling, FaLeaf } from "react-icons/fa";
 import { LuWheatOff } from "react-icons/lu";
 import { RootState } from "@/src/redux/store";
 import { Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { setSelectedRestaurant, setSnapPosition } from "@/src/redux/slices/restaurantsSlice";
+import { setSelectedRestaurant, setFilteredRestaurants, setSnapPosition } from "@/src/redux/slices/restaurantsSlice";
 import RestaurantDetails from "@/src/app/components/RestaurantDetails/RestaurantDetails";
 
 const snapPoints = [0.95, 0.5, 100];
 
 const BottomBar = () => {
   const dispatch = useDispatch();
-  const restaurants = useSelector((state: RootState) => state.restaurants.filteredRestaurants);
+  const restaurant = useSelector((state: RootState) => state.restaurants.restaurant);
+  const visibleRestaurants = useSelector((state: RootState) => state.restaurants.visibleRestaurants);
   const isRestaurantDetailsOpen = useSelector((state: RootState) => state.restaurants.isRestaurantDetailsOpen);
   const snapPosition = useSelector((state: RootState) => state.restaurants.snapPosition);
 
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [inputFocused, setInputFocused] = useState<boolean>(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const listSheetRef = useRef<SheetRef>(null);
   const snapToList = (i: number) => {
@@ -30,7 +33,49 @@ const BottomBar = () => {
   };
 
   const handleSearch = (query: string) => {
+    // Update the local search query state with the user's input
     setSearchQuery(query);
+
+    const filteredRestaurants = query.trim() ? restaurant.filter((r) => r.name.toLowerCase().includes(query.toLowerCase())) : restaurant;
+    dispatch(setFilteredRestaurants(filteredRestaurants));
+  };
+
+  // Handle the Enter key to perform the search and snap to the list
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch(searchQuery);
+      snapToList(1); // Move the sheet to the next snap point after pressing Enter
+      inputRef.current?.blur();
+      setInputFocused(false);
+    }
+  };
+
+  // Clears the search query and restores all restaurants.
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    dispatch(setFilteredRestaurants(restaurant));
+
+    // Focus the input after clearing
+    if (snapPosition === 0 && inputRef.current) {
+      inputRef.current.focus();
+    } else {
+      setInputFocused(false);
+    }
+  };
+
+  // Handle canceling the search
+  const handleCancelSearch = () => {
+    setSearchQuery(""); // Reset search query
+    dispatch(setFilteredRestaurants(restaurant)); // Restore all restaurants
+    snapToList(1); // Snap to position 1
+    setInputFocused(false);
+  };
+
+  // Function handling onBlur
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // If the related target is the clear button, prevent onBlur logic
+    if ((e.relatedTarget as HTMLElement)?.id === "clear-button") return;
+    setTimeout(() => setInputFocused(false), 0);
   };
 
   const handleSelectRestaurant = (restaurant: Restaurant) => {
@@ -54,17 +99,46 @@ const BottomBar = () => {
           <Sheet.Header />
           <Sheet.Content>
             <div className="flex items-center space-x-3 pb-5 px-4">
-              <div className="flex items-center flex-grow bg-veryLightGray rounded-lg px-4 py-2 border-lightGray border">
+              <div className="relative flex items-center flex-grow bg-veryLightGray rounded-lg px-4 py-2 border-lightGray border">
                 <IoSearch className="text-mediumGray" />
-                <input type="text" placeholder="Wyszukaj tutaj" className="bg-transparent flex-grow px-2 text-sm text-mediumGray font-medium outline-none" value={searchQuery} onChange={(e) => handleSearch(e.target.value)} onFocus={() => snapToList(0)} />
+                <input
+                  ref={inputRef}
+                  type="search"
+                  placeholder="Wyszukaj tutaj"
+                  className="bg-transparent flex-grow pl-2 pr-4 text-sm text-mediumGray font-medium outline-none"
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  onFocus={() => {
+                    snapToList(0);
+                    setInputFocused(true);
+                  }}
+                  onBlur={handleBlur}
+                />
+                {/* Button to clear the search input */}
+                {searchQuery && (
+                  <button id="clear-button" className="absolute right-2 w-5 h-5 p-[2px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition" onClick={handleClearSearch}>
+                    <IoClose size="100%" />
+                  </button>
+                )}
               </div>
-              <button className="flex justify-center items-center bg-secondaryYellow text-bodyText w-10 h-10 rounded-lg shadow-sm" onClick={() => snapToList(0)}>
-                <FiFilter className="text-white" />
-              </button>
+              {/* Cancel button */}
+              {inputFocused && (
+                <button className="flex justify-center items-center min-w-10 h-10 rounded-lg shadow-sm" onClick={handleCancelSearch}>
+                  <span className="text-darkGray">Anuluj</span>
+                </button>
+              )}
+
+              {/* Filter button */}
+              {!inputFocused && (
+                <button className="flex justify-center items-center bg-secondaryYellow w-10 h-10 rounded-lg shadow-sm" onClick={() => snapToList(0)}>
+                  <FiFilter className="text-white" />
+                </button>
+              )}
             </div>
             <Sheet.Scroller draggableAt="both" className="flex flex-col">
-              {restaurants.length > 0 ? (
-                restaurants.map((restaurant, index) => (
+              {visibleRestaurants.length > 0 ? (
+                visibleRestaurants.map((restaurant, index) => (
                   <div key={index} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(restaurant)}>
                     <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
                       {restaurant.image ? <Image src={restaurant.image.url} alt={restaurant.name} className="object-cover" fill /> : <span># {index + 1}</span>}

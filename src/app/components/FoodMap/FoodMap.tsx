@@ -4,7 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setRestaurant, Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { RootState } from "@/src/redux/store";
-import { setSelectedRestaurant, setFilteredRestaurants } from "@/src/redux/slices/restaurantsSlice";
+import { setSelectedRestaurant, setFilteredRestaurants, setvVisibleRestaurants } from "@/src/redux/slices/restaurantsSlice";
 import CustomMarker from "@/src/app/components/FoodMap/CustomMarker";
 
 const spaceId = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
@@ -12,20 +12,24 @@ const accessToken = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN;
 
 const FoodMap = () => {
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
-  const [initialFilterApplied, setInitialFilterApplied] = useState(false);
 
   const dispatch = useDispatch();
-  const restaurants = useSelector((state: RootState) => state.restaurants.restaurant);
   const filteredRestaurants = useSelector((state: RootState) => state.restaurants.filteredRestaurants);
+  const visibleRestaurants = useSelector((state: RootState) => state.restaurants.visibleRestaurants);
   const selectedRestaurant = useSelector((state: RootState) => state.restaurants.selectedRestaurant);
   const snapPosition = useSelector((state: RootState) => state.restaurants.snapPosition);
   const snapPositionDetails = useSelector((state: RootState) => state.restaurants.snapPositionDetails);
   const isRestaurantDetailsOpen = useSelector((state: RootState) => state.restaurants.isRestaurantDetailsOpen);
 
   // Ref to store the latest snapPosition, snapPositionDetails, isRestaurantDetailsOpen
+  const filteredRestaurantsRef = useRef(filteredRestaurants);
   const snapPositionRef = useRef(snapPosition);
   const snapPositionDetailsRef = useRef(snapPositionDetails);
   const isRestaurantDetailsOpenRef = useRef(isRestaurantDetailsOpen);
+
+  useEffect(() => {
+    filteredRestaurantsRef.current = filteredRestaurants;
+  }, [filteredRestaurants]);
 
   useEffect(() => {
     snapPositionRef.current = snapPosition;
@@ -82,6 +86,7 @@ const FoodMap = () => {
         const fieldsData = data.data.foodExpoCollection.items;
 
         dispatch(setRestaurant(fieldsData));
+        dispatch(setFilteredRestaurants(fieldsData));
       } catch (error) {
         console.error("Error fetching restaurants from Contentful:", error);
       }
@@ -114,26 +119,25 @@ const FoodMap = () => {
   }, [selectedRestaurant, mapInstance]);
 
   const updateFilteredRestaurants = () => {
-    if (!mapInstance || (isRestaurantDetailsOpenRef.current && initialFilterApplied)) {
-      return;
-    } else {
-      setInitialFilterApplied(true);
-    }
+    if (!mapInstance) return;
 
     const bounds = mapInstance.getBounds();
     const screenHeight = window.innerHeight;
 
+    // Use the correct snapPosition based on whether restaurant details are open
+    const snapPositionToUse = isRestaurantDetailsOpenRef.current ? snapPositionDetailsRef.current : snapPositionRef.current;
+
     let bottomBarHeight = 0;
-    if (snapPositionDetailsRef.current === 1) bottomBarHeight = screenHeight * 0.5;
-    if (snapPositionDetailsRef.current === 2) bottomBarHeight = 100;
+    if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
+    if (snapPositionToUse === 2) bottomBarHeight = 100;
 
     const adjustedSouthBound = mapInstance.unproject([0, screenHeight - bottomBarHeight]).lat;
 
-    const filtered = restaurants.filter((restaurant) => {
+    const filtered = filteredRestaurantsRef.current.filter((restaurant) => {
       return restaurant.lng >= bounds.getWest() && restaurant.lng <= bounds.getEast() && restaurant.lat >= adjustedSouthBound && restaurant.lat <= bounds.getNorth();
     });
 
-    dispatch(setFilteredRestaurants(filtered));
+    dispatch(setvVisibleRestaurants(filtered));
   };
 
   useEffect(() => {
@@ -149,6 +153,11 @@ const FoodMap = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapInstance]);
+
+  useEffect(() => {
+    updateFilteredRestaurants();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredRestaurants]);
 
   const handleMarkerClick = (restaurant: Restaurant) => {
     dispatch(setSelectedRestaurant(restaurant));
@@ -171,7 +180,7 @@ const FoodMap = () => {
         <NavigationControl position="top-right" />
         <GeolocateControl position="top-right" />
 
-        {filteredRestaurants.length > 0 && filteredRestaurants.map((restaurant, index) => <CustomMarker key={index} restaurant={restaurant} onClick={() => handleMarkerClick(restaurant)} />)}
+        {visibleRestaurants.length > 0 && visibleRestaurants.map((restaurant) => <CustomMarker key={restaurant.id} restaurant={restaurant} onClick={() => handleMarkerClick(restaurant)} />)}
       </Map>
     </div>
   );
