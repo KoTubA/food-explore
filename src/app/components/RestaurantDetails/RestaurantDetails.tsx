@@ -74,7 +74,7 @@ const RestaurantDetails = () => {
       <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onSnap={handleSnap} onClose={() => {}} snapPoints={[0.95, 0.5, 100]} initialSnap={snapPositionDetails}>
         <Sheet.Container>
           <Sheet.Header />
-          <Sheet.Content>
+          <Sheet.Content style={{ paddingBottom: detailsSheetRef.current?.y }}>
             {selectedRestaurant ? (
               <>
                 <div className="flex flex-col px-4 pb-4 space-y-1">

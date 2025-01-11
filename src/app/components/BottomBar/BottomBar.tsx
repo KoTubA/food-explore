@@ -43,7 +43,6 @@ const BottomBar = () => {
   // Handle the Enter key to perform the search and snap to the list
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleSearch(searchQuery);
       snapToList(1); // Move the sheet to the next snap point after pressing Enter
       inputRef.current?.blur();
       setInputFocused(false);
@@ -97,7 +96,7 @@ const BottomBar = () => {
       <Sheet ref={listSheetRef} isOpen={!isRestaurantDetailsOpen} onClose={() => {}} snapPoints={snapPoints} initialSnap={snapPosition} onSnap={handleSnap}>
         <Sheet.Container>
           <Sheet.Header />
-          <Sheet.Content>
+          <Sheet.Content style={{ paddingBottom: listSheetRef.current?.y }}>
             <div className="flex items-center space-x-3 pb-5 px-4">
               <div className="relative flex items-center flex-grow bg-veryLightGray rounded-lg px-4 py-2 border-lightGray border">
                 <IoSearch className="text-mediumGray" />
