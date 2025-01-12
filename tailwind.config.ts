@@ -20,7 +20,7 @@ export default {
       },
       animation: {
         bounceOnce: "bounce 1.2s 1",
-        fadeIn: "fadeIn 0.15s ease-in",
+        fadeIn: "fadeIn 0.3s ease-in",
       },
       keyframes: {
         bounce: {

@@ -4,7 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setRestaurant, Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { RootState } from "@/src/redux/store";
-import { setSelectedRestaurant, setFilteredRestaurants, setvVisibleRestaurants } from "@/src/redux/slices/restaurantsSlice";
+import { setSelectedRestaurant, setFilteredRestaurants, setvVisibleRestaurants, setLoading, setError } from "@/src/redux/slices/restaurantsSlice";
 import CustomMarker from "@/src/app/components/FoodMap/CustomMarker";
 
 const spaceId = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
@@ -12,6 +12,8 @@ const accessToken = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN;
 
 const FoodMap = () => {
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const dispatch = useDispatch();
   const filteredRestaurants = useSelector((state: RootState) => state.restaurants.filteredRestaurants);
@@ -87,13 +89,24 @@ const FoodMap = () => {
 
         dispatch(setRestaurant(fieldsData));
         dispatch(setFilteredRestaurants(fieldsData));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.error("Error fetching restaurants from Contentful:", error);
+        dispatch(setError("Wystąpił błąd podczas ładowania danych."));
+      } finally {
+        setIsDataLoaded(true);
       }
     };
 
     fetchRestaurants();
   }, [dispatch]);
+
+  // Map loading effect
+  useEffect(() => {
+    console.log(isDataLoaded, isMapLoaded);
+    if (isMapLoaded && isDataLoaded) {
+      dispatch(setLoading(false)); // Set loading to false only when both data and map are loaded
+    }
+  }, [isMapLoaded, isDataLoaded, dispatch]);
 
   useEffect(() => {
     if (selectedRestaurant && mapInstance) {
@@ -168,7 +181,10 @@ const FoodMap = () => {
   return (
     <div className="w-full h-full">
       <Map
-        onLoad={(e) => setMapInstance(e.target)}
+        onLoad={(e) => {
+          setMapInstance(e.target);
+          setIsMapLoaded(true);
+        }}
         style={{ width: "100%", height: "100%" }}
         mapStyle={mapStyle}
         initialViewState={{

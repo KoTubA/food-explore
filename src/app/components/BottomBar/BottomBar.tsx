@@ -21,6 +21,8 @@ const BottomBar = () => {
   const visibleRestaurants = useSelector((state: RootState) => state.restaurants.visibleRestaurants);
   const isRestaurantDetailsOpen = useSelector((state: RootState) => state.restaurants.isRestaurantDetailsOpen);
   const snapPosition = useSelector((state: RootState) => state.restaurants.snapPosition);
+  const loading = useSelector((state: RootState) => state.restaurants.loading);
+  const error = useSelector((state: RootState) => state.restaurants.error);
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [inputFocused, setInputFocused] = useState<boolean>(false);
@@ -134,71 +136,96 @@ const BottomBar = () => {
                 <FiFilter className="text-white" />
               </button>
             </div>
-            <Sheet.Scroller draggableAt="both" className="flex flex-col">
-              {visibleRestaurants.length > 0 ? (
-                visibleRestaurants.map((restaurant) => (
-                  <div key={restaurant.id} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(restaurant)}>
-                    <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
-                      {restaurant.image ? <Image src={restaurant.image.url} alt={restaurant.name} className="object-cover" fill /> : <span># {restaurant.id + 1}</span>}
-                    </div>
-                    <div className="flex flex-col space-y-1">
-                      <h4 className="text-xl font-light">{restaurant.name}</h4>
-                      <div className="text-sm text-mediumGray flex items-center space-x-2">
-                        {restaurant.type && (
-                          <span className="flex items-center">
-                            <span>{restaurant.type}</span>
-                          </span>
-                        )}
-                        {restaurant.price && (
-                          <span className="flex items-center space-x-2">
-                            <span>•</span>
-                            <span>{restaurant.price}</span>
-                          </span>
-                        )}
-                        {restaurant.dietaryStyles && restaurant.dietaryStyles.length > 0 && (
-                          <>
-                            {restaurant.dietaryStyles.map((category) => {
-                              let icon;
-                              switch (category) {
-                                case "Wegetariańska":
-                                  icon = <FaLeaf className="text-primaryGreen" />;
-                                  break;
-                                case "Wegańska":
-                                  icon = <FaSeedling className="text-primaryGreen" />;
-                                  break;
-                                case "Bezglutenowa":
-                                  icon = <LuWheatOff className="text-primaryRed" />;
-                                  break;
-                                default:
-                                  icon = null;
-                              }
+            {/* Loading State */}
+            {loading && (
+              <div className="flex justify-center items-center text-sm py-8">
+                <div role="status">
+                  <svg aria-hidden="true" className="w-8 h-8 text-gray-200 animate-spin fill-secondaryYellow" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+                    <path
+                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                      fill="currentFill"
+                    />
+                  </svg>
+                  <span className="sr-only">Loading...</span>
+                </div>
+              </div>
+            )}
 
-                              return (
-                                <span key={category} className="flex items-center space-x-2">
-                                  <span>•</span>
-                                  {icon}
-                                </span>
-                              );
-                            })}
-                          </>
+            {/* Error State */}
+            {error && (
+              <div className="flex justify-center items-center text-sm py-8">
+                <div className="text-primaryRed text-center">{error}</div>
+              </div>
+            )}
+
+            {!loading && !error && (
+              <Sheet.Scroller draggableAt="both" className="flex flex-col">
+                {visibleRestaurants.length > 0 ? (
+                  visibleRestaurants.map((restaurant) => (
+                    <div key={restaurant.id} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(restaurant)}>
+                      <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
+                        {restaurant.image ? <Image src={restaurant.image.url} alt={restaurant.name} className="object-cover animate-fadeIn" fill key={restaurant.image?.url} /> : <span># {restaurant.id + 1}</span>}
+                      </div>
+                      <div className="flex flex-col space-y-1 animate-fadeIn">
+                        <h4 className="text-xl font-light">{restaurant.name}</h4>
+                        <div className="text-sm text-mediumGray flex items-center space-x-2">
+                          {restaurant.type && (
+                            <span className="flex items-center">
+                              <span>{restaurant.type}</span>
+                            </span>
+                          )}
+                          {restaurant.price && (
+                            <span className="flex items-center space-x-2">
+                              <span>•</span>
+                              <span>{restaurant.price}</span>
+                            </span>
+                          )}
+                          {restaurant.dietaryStyles && restaurant.dietaryStyles.length > 0 && (
+                            <>
+                              {restaurant.dietaryStyles.map((category) => {
+                                let icon;
+                                switch (category) {
+                                  case "Wegetariańska":
+                                    icon = <FaLeaf className="text-primaryGreen" />;
+                                    break;
+                                  case "Wegańska":
+                                    icon = <FaSeedling className="text-primaryGreen" />;
+                                    break;
+                                  case "Bezglutenowa":
+                                    icon = <LuWheatOff className="text-primaryRed" />;
+                                    break;
+                                  default:
+                                    icon = null;
+                                }
+
+                                return (
+                                  <span key={category} className="flex items-center space-x-2">
+                                    <span>•</span>
+                                    {icon}
+                                  </span>
+                                );
+                              })}
+                            </>
+                          )}
+                        </div>
+                        {restaurant.foodCategories && restaurant.foodCategories.length > 0 && (
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            {restaurant.foodCategories.map((category, i) => (
+                              <span key={i} className="bg-lightGray text-darkGray text-xs font-medium px-2 py-1 rounded-xl">
+                                {category}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
-                      {restaurant.foodCategories && restaurant.foodCategories.length > 0 && (
-                        <div className="flex flex-wrap gap-2 pt-1">
-                          {restaurant.foodCategories.map((category, i) => (
-                            <span key={i} className="bg-lightGray text-darkGray text-xs font-medium px-2 py-1 rounded-xl">
-                              {category}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                     </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex justify-center items-center text-mediumGray text-sm py-8">Brak miejsc w tym regionie.</div>
-              )}
-            </Sheet.Scroller>
+                  ))
+                ) : (
+                  <p className="flex justify-center items-center text-mediumGray text-sm py-8">Brak miejsc w tym regionie.</p>
+                )}
+              </Sheet.Scroller>
+            )}
           </Sheet.Content>
         </Sheet.Container>
       </Sheet>

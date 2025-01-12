@@ -25,6 +25,8 @@ interface RestaurantState {
   isRestaurantDetailsOpen: boolean;
   snapPosition: number;
   snapPositionDetails: number;
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: RestaurantState = {
@@ -35,6 +37,8 @@ const initialState: RestaurantState = {
   isRestaurantDetailsOpen: false,
   snapPosition: 1,
   snapPositionDetails: 1,
+  loading: true,
+  error: null,
 };
 
 const restaurantsSlice = createSlice({
@@ -64,9 +68,15 @@ const restaurantsSlice = createSlice({
     setSnapPositionDetails: (state, action: PayloadAction<number>) => {
       state.snapPositionDetails = action.payload;
     },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
+    },
   },
 });
 
-export const { setRestaurant, setFilteredRestaurants, setvVisibleRestaurants, setSelectedRestaurant, closeRestaurantDetails, setSnapPosition, setSnapPositionDetails } = restaurantsSlice.actions;
+export const { setRestaurant, setFilteredRestaurants, setvVisibleRestaurants, setSelectedRestaurant, closeRestaurantDetails, setSnapPosition, setSnapPositionDetails, setLoading, setError } = restaurantsSlice.actions;
 
 export default restaurantsSlice.reducer;
