@@ -40,13 +40,12 @@ const BottomBar = () => {
     dispatch(setFilteredRestaurants(filteredRestaurants));
   };
 
-  // Handle the Enter key to perform the search and snap to the list
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      snapToList(1); // Move the sheet to the next snap point after pressing Enter
-      inputRef.current?.blur();
-      setInputFocused(false);
-    }
+  // Handles form submission
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    snapToList(1);
+    inputRef.current?.blur();
+    setInputFocused(false);
   };
 
   // Clears the search query and restores all restaurants.
@@ -92,28 +91,31 @@ const BottomBar = () => {
 
   return (
     <>
-      {/* Sheet z listą restauracji */}
       <Sheet ref={listSheetRef} isOpen={!isRestaurantDetailsOpen} onClose={() => {}} snapPoints={snapPoints} initialSnap={snapPosition} onSnap={handleSnap}>
         <Sheet.Container>
           <Sheet.Header />
           <Sheet.Content style={{ paddingBottom: listSheetRef.current?.y }}>
             <div className="flex items-center space-x-3 pb-5 px-4">
               <div className="relative flex items-center flex-grow bg-veryLightGray rounded-lg px-4 py-2 border-lightGray border">
-                <IoSearch className="text-mediumGray" />
-                <input
-                  ref={inputRef}
-                  type="search"
-                  placeholder="Wyszukaj tutaj"
-                  className="bg-transparent flex-grow pl-2 pr-4 text-sm text-mediumGray font-medium outline-none"
-                  value={searchQuery}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  onFocus={() => {
-                    snapToList(0);
-                    setInputFocused(true);
-                  }}
-                  onBlur={handleBlur}
-                />
+                <form className="w-full flex" onSubmit={handleFormSubmit} action="">
+                  <IoSearch className="text-mediumGray" />
+                  <input
+                    ref={inputRef}
+                    type="search"
+                    placeholder="Wyszukaj tutaj"
+                    className="bg-transparent flex-grow pl-2 pr-4 text-sm text-mediumGray font-medium outline-none"
+                    value={searchQuery}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    onFocus={() => {
+                      snapToList(0);
+                      setInputFocused(true);
+                    }}
+                    onBlur={handleBlur}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
+                  />
+                </form>
                 {/* Button to clear the search input */}
                 {searchQuery && (
                   <button id="clear-button" className="absolute right-2 w-5 h-5 p-[2px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition" onClick={handleClearSearch}>
@@ -134,10 +136,10 @@ const BottomBar = () => {
             </div>
             <Sheet.Scroller draggableAt="both" className="flex flex-col">
               {visibleRestaurants.length > 0 ? (
-                visibleRestaurants.map((restaurant, index) => (
-                  <div key={index} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(restaurant)}>
+                visibleRestaurants.map((restaurant) => (
+                  <div key={restaurant.id} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(restaurant)}>
                     <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
-                      {restaurant.image ? <Image src={restaurant.image.url} alt={restaurant.name} className="object-cover" fill /> : <span># {index + 1}</span>}
+                      {restaurant.image ? <Image src={restaurant.image.url} alt={restaurant.name} className="object-cover" fill /> : <span># {restaurant.id + 1}</span>}
                     </div>
                     <div className="flex flex-col space-y-1">
                       <h4 className="text-xl font-light">{restaurant.name}</h4>
