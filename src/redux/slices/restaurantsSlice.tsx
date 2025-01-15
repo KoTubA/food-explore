@@ -6,9 +6,7 @@ export interface Restaurant {
   address: string;
   lat: number;
   lng: number;
-  type: string;
-  cuisine?: string[];
-  foodCategories?: string[];
+  categories: string;
   dietaryStyles?: string[];
   price?: string;
   link?: string;
@@ -32,7 +30,6 @@ interface RestaurantState {
   activeFilters: {
     dietStyle: string | null;
     categories: string[];
-    types: string[];
     price: string | null;
   };
 }
@@ -52,7 +49,6 @@ const initialState: RestaurantState = {
   activeFilters: {
     dietStyle: null,
     categories: [],
-    types: [],
     price: null,
   },
 };
@@ -78,12 +74,7 @@ const restaurantsSlice = createSlice({
         }
 
         // Food categories filter
-        if (activeFilters.categories.length > 0 && !activeFilters.categories.some((category) => r.foodCategories?.includes(category))) {
-          return false;
-        }
-
-        // Restaurant type filter
-        if (activeFilters.types.length > 0 && !activeFilters.types.includes(r.type)) {
+        if (activeFilters.categories.length > 0 && !activeFilters.categories.some((category) => r.categories?.includes(category))) {
           return false;
         }
 
@@ -109,7 +100,6 @@ const restaurantsSlice = createSlice({
       state.activeFilters = {
         dietStyle: null,
         categories: [],
-        types: [],
         price: null,
       };
       restaurantsSlice.caseReducers.setFilteredRestaurants(state); // Trigger filtering after reset

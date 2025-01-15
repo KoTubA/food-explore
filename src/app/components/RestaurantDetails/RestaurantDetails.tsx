@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/redux/store";
 import { setSelectedRestaurant, closeRestaurantDetails, setSnapPositionDetails } from "@/src/redux/slices/restaurantsSlice";
 import { IoClose } from "react-icons/io5";
-import { FaRegCopy, FaGoogle, FaSeedling, FaLeaf, FaUtensilSpoon } from "react-icons/fa";
+import { FaRegCopy, FaGoogle, FaSeedling, FaLeaf } from "react-icons/fa";
 import { FaLocationDot, FaEarthAmericas, FaMoneyBills } from "react-icons/fa6";
 import { LuWheatOff } from "react-icons/lu";
 import { FiCheck } from "react-icons/fi";
@@ -99,9 +99,9 @@ const RestaurantDetails = () => {
                   </div>
                 </div>
                 <div className="text-sm text-mediumGray flex items-center space-x-2 animate-fadeIn">
-                  {selectedRestaurant.type && (
+                  {selectedRestaurant.categories && (
                     <span className="flex items-center">
-                      <span>{selectedRestaurant.type}</span>
+                      <span>{selectedRestaurant.categories}</span>
                     </span>
                   )}
                   {selectedRestaurant.price && (
@@ -139,30 +139,17 @@ const RestaurantDetails = () => {
                   )}
                 </div>
               </div>
-              <Sheet.Scroller draggableAt="both">
+              <Sheet.Scroller>
                 <div className="flex flex-col space-y-4">
                   <div className="flex flex-col px-4 space-y-4">
                     <div className="bg-lightGray flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl " style={{ aspectRatio: "16 / 9" }}>
                       {selectedRestaurant.image ? <Image src={selectedRestaurant.image.url} alt={selectedRestaurant.name} className="object-cover animate-fadeIn" fill key={selectedRestaurant.image?.url} /> : <span>No media</span>}
                     </div>
-                    {selectedRestaurant.foodCategories && selectedRestaurant.foodCategories.length > 0 && (
-                      <div className="flex flex-wrap gap-2 animate-fadeIn">
-                        {selectedRestaurant.foodCategories.map((category, i) => (
-                          <span key={i} className="bg-lightGray text-darkGray text-xs font-medium px-2 py-1 rounded-xl">
-                            {category}
-                          </span>
-                        ))}
-                      </div>
-                    )}
                   </div>
                   <div className="flex flex-col text-mediumGray text-sm border-b border-lightGray">
                     <div className="flex items-center space-x-4 p-4 border-t border-lightGray">
                       <FaLocationDot className="text-secondaryYellow flex-shrink-0" />
                       {selectedRestaurant?.address ? <span>{selectedRestaurant.address}</span> : <span className="text-gray-500">Brak adresu</span>}
-                    </div>
-                    <div className="flex items-center space-x-4 p-4 border-t border-lightGray">
-                      <FaUtensilSpoon className="text-secondaryYellow flex-shrink-0" />
-                      {selectedRestaurant?.cuisine?.length ? <span>{selectedRestaurant.cuisine.join(", ")}</span> : <span className="text-gray-500">Brak typu kuchni</span>}
                     </div>
                     <div className="flex items-center space-x-4 p-4 border-t border-lightGray">
                       <FaMoneyBills className="text-secondaryYellow flex-shrink-0" />

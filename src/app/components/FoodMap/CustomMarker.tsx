@@ -55,7 +55,7 @@ const CustomMarker: React.FC<CustomMarkerProps> = ({ restaurant, onClick }) => {
         <FaLocationDot className="text-secondaryYellow w-auto h-9 animate-bounceOnce" />
       ) : (
         <div className="w-9 h-9 bg-veryLightGray border-2 border-white rounded-full flex justify-center items-center shadow-md cursor-pointer animate-fadeIn">
-          <span className="text-xl">{getIcon(restaurant.type)}</span>
+          <span className="text-xl">{getIcon(restaurant.categories)}</span>
         </div>
       )}
     </Marker>

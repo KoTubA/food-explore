@@ -62,9 +62,7 @@ const FoodMap = () => {
                 image {
                   url
                 }
-                type
-                cuisine
-                foodCategories
+                categories
                 dietaryStyles
                 price
                 link

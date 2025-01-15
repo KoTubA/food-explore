@@ -137,7 +137,7 @@ const BottomBar = () => {
             {/* Loading State */}
             {loading && (
               <div className="flex justify-center items-center text-sm py-8">
-                <div role="status">
+                <div role="status" className="text-secondaryYellow">
                   <svg aria-hidden="true" className="w-8 h-8 text-gray-200 animate-spin fill-secondaryYellow" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
                     <path
@@ -158,7 +158,7 @@ const BottomBar = () => {
             )}
 
             {!loading && !error && (
-              <Sheet.Scroller draggableAt="both" className="flex flex-col">
+              <Sheet.Scroller className="flex flex-col">
                 {visibleRestaurants.length > 0 ? (
                   visibleRestaurants.map((restaurant) => (
                     <div key={restaurant.id} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(restaurant)}>
@@ -168,9 +168,9 @@ const BottomBar = () => {
                       <div className="flex flex-col space-y-1 animate-fadeIn">
                         <h4 className="text-xl font-light">{restaurant.name}</h4>
                         <div className="text-sm text-mediumGray flex items-center space-x-2">
-                          {restaurant.type && (
+                          {restaurant.categories && (
                             <span className="flex items-center">
-                              <span>{restaurant.type}</span>
+                              <span>{restaurant.categories}</span>
                             </span>
                           )}
                           {restaurant.price && (
@@ -207,15 +207,6 @@ const BottomBar = () => {
                             </>
                           )}
                         </div>
-                        {restaurant.foodCategories && restaurant.foodCategories.length > 0 && (
-                          <div className="flex flex-wrap gap-2 pt-1">
-                            {restaurant.foodCategories.map((category, i) => (
-                              <span key={i} className="bg-lightGray text-darkGray text-xs font-medium px-2 py-1 rounded-xl">
-                                {category}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     </div>
                   ))

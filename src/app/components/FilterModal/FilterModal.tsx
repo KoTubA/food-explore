@@ -4,22 +4,21 @@ import { RootState } from "@/src/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { setFilterModalOpen, setActiveFilters, resetFilters } from "@/src/redux/slices/restaurantsSlice";
 import { IoChevronBack } from "react-icons/io5";
+import { FaCirclePlus, FaCircleMinus } from "react-icons/fa6";
 
 const FilterModal = () => {
   const filters = useSelector((state: RootState) => state.restaurants.activeFilters);
 
   const [expandedSections, setExpandedSections] = useState({
     categories: false,
-    types: false,
   });
   const [localFilters, setLocalFilters] = useState({
     dietStyle: filters.dietStyle,
     categories: filters.categories,
-    types: filters.types,
     price: filters.price,
   });
 
-  const toggleSection = (section: "categories" | "types") => {
+  const toggleSection = (section: "categories") => {
     setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
@@ -35,7 +34,6 @@ const FilterModal = () => {
       setLocalFilters({
         dietStyle: filters.dietStyle,
         categories: filters.categories,
-        types: filters.types,
         price: filters.price,
       });
     }
@@ -46,7 +44,6 @@ const FilterModal = () => {
     setLocalFilters({
       dietStyle: filters.dietStyle,
       categories: filters.categories,
-      types: filters.types,
       price: filters.price,
     });
 
@@ -91,7 +88,6 @@ const FilterModal = () => {
     setLocalFilters({
       dietStyle: null,
       categories: [],
-      types: [],
       price: null,
     });
   };
@@ -105,29 +101,28 @@ const FilterModal = () => {
               <IoChevronBack onClick={closeModal} className="absolute left-4" />
               <h2 className="font-bold">Znajdź rekomendacje</h2>
             </div>
-            <Sheet.Scroller draggableAt="both" className="flex flex-col px-4 gap-5 pb-[76px] mb-4">
+            <Sheet.Scroller className="flex flex-col pb-[76px] mb-4">
               {/* Styl diety */}
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 px-4 pt-2 pb-6 border-b border-lightGray">
                 <div className="flex justify-between items-center font-light text-darkGray">
                   <h3 className="uppercase">Styl diety</h3>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   {["Bezglutenowa", "Wegetariańska", "Wegańska"].map((diet) => (
-                    <button key={diet} onClick={() => handleFilterChange("dietStyle", diet)} className={`px-5 py-3 rounded-md uppercase font-medium text-xs ${isFilterActive("dietStyle", diet) ? "bg-secondaryYellow text-white" : "bg-lightGray/50 text-darkGray"}`}>
+                    <button key={diet} onClick={() => handleFilterChange("dietStyle", diet)} className={`px-3 py-[6px] rounded-2xl capitalize font-medium text-xs border-2 ${isFilterActive("dietStyle", diet) ? "text-secondaryYellow border-secondaryYellow" : "text-mediumGray border-mediumGray"}`}>
                       {diet}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Typy */}
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between items-center font-light text-darkGray cursor-pointer" onClick={() => toggleSection("types")}>
-                  <h3 className="uppercase">Typy</h3>
-                  <span className="text-xs uppercase">{expandedSections.types ? "Zwiń" : "Rozwiń"}</span>
+              {/* Kategorie */}
+              <div className="flex flex-col px-4 pt-6 border-b border-lightGray">
+                <div className="flex justify-between items-center font-light text-darkGray pb-4">
+                  <h3 className="uppercase">Kategorie</h3>
                 </div>
-                {expandedSections.types && (
-                  <div className="flex flex-wrap gap-3">
+                <div className={`relative overflow-hidden ${expandedSections.categories ? "h-auto" : "h-44"}`}>
+                  <div className="flex flex-wrap gap-2">
                     {[
                       "Cukiernia",
                       "Lody",
@@ -159,39 +154,29 @@ const FilterModal = () => {
                       "Kuchnia amerykańska",
                       "Kuchnia neapolitańska",
                     ].map((type) => (
-                      <button key={type} onClick={() => handleFilterChange("types", type)} className={`px-5 py-3 rounded-md uppercase font-medium text-xs ${isFilterActive("types", type) ? "bg-secondaryYellow text-white" : "bg-lightGray/50 text-darkGray"}`}>
+                      <button key={type} onClick={() => handleFilterChange("categories", type)} className={`px-3 py-[6px] rounded-2xl capitalize font-medium text-xs ${isFilterActive("categories", type) ? "bg-secondaryYellow text-white" : "bg-secondaryYellow/15 text-secondaryYellow"}`}>
                         {type}
                       </button>
                     ))}
                   </div>
-                )}
-              </div>
-
-              {/* Kategorie */}
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between items-center font-light text-darkGray cursor-pointer" onClick={() => toggleSection("categories")}>
-                  <h3 className="uppercase">Kategorie</h3>
-                  <span className="text-xs uppercase">{expandedSections.categories ? "Zwiń" : "Rozwiń"}</span>
+                  {!expandedSections.categories && <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-b from-transparent to-white pointer-events-none"></div>}
                 </div>
-                {expandedSections.categories && (
-                  <div className="flex flex-wrap gap-3">
-                    {["Kawa", "Herbata", "Desery", "Wypieki", "Pieczywo", "Napoje Bezalkoholowe", "Alkohole", "Bubble Tea", "Smoothie", "Milkshake", "Menu Sezonowe", "Kuchnia Fusion", "Kuchnia Regionalna", "Przekąski", "Śniadania", "Dania Główne", "Zupy", "Sałatki", "Pizza", "Makarony", "Sushi", "Burgery", "Fast Food", "Street Food"].map((category) => (
-                      <button key={category} onClick={() => handleFilterChange("categories", category)} className={`px-5 py-3 rounded-md uppercase font-medium text-xs ${isFilterActive("categories", category) ? "bg-secondaryYellow text-white" : "bg-lightGray/50 text-darkGray"}`}>
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <div className="flex justify-center items-center overflow-hidden h-12">
+                  <button className="flex items-center justify-center whitespace-nowrap text-brand font-medium text-sm text-secondaryYellow" type="button" onClick={() => toggleSection("categories")}>
+                    <span className="mr-2">{expandedSections.categories ? <FaCircleMinus /> : <FaCirclePlus />}</span>
+                    {expandedSections.categories ? "Zwiń filtry" : "Zobacz wszystkie filtry"}
+                  </button>
+                </div>
               </div>
 
               {/* Cena */}
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 px-4 py-6">
                 <div className="flex justify-between items-center font-light text-darkGray">
                   <h3 className="uppercase">Cena</h3>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   {["1–20 zł", "20–40 zł", "40–60 zł", "$", "$$", "$$$"].map((price) => (
-                    <button key={price} onClick={() => handleFilterChange("price", price)} className={`px-5 py-3 rounded-md uppercase font-medium text-xs ${isFilterActive("price", price) ? "bg-secondaryYellow text-white" : "bg-lightGray/50 text-darkGray"}`}>
+                    <button key={price} onClick={() => handleFilterChange("price", price)} className={`px-3 py-[6px] rounded-2xl capitalize font-medium text-xs ${isFilterActive("price", price) ? "bg-secondaryYellow text-white" : "bg-secondaryYellow/15 text-secondaryYellow"}`}>
                       {price}
                     </button>
                   ))}
