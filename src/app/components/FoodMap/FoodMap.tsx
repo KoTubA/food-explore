@@ -4,7 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setRestaurant, Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { RootState } from "@/src/redux/store";
-import { setSelectedRestaurant, setFilteredRestaurants, setvVisibleRestaurants, setLoading, setError } from "@/src/redux/slices/restaurantsSlice";
+import { setSelectedRestaurant, setFilteredRestaurants, setVisibleRestaurants, setLoading, setError } from "@/src/redux/slices/restaurantsSlice";
 import CustomMarker from "@/src/app/components/FoodMap/CustomMarker";
 
 const spaceId = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
@@ -102,7 +102,6 @@ const FoodMap = () => {
 
   // Map loading effect
   useEffect(() => {
-    console.log(isDataLoaded, isMapLoaded);
     if (isMapLoaded && isDataLoaded) {
       dispatch(setLoading(false)); // Set loading to false only when both data and map are loaded
     }
@@ -131,7 +130,7 @@ const FoodMap = () => {
     }
   }, [selectedRestaurant, mapInstance]);
 
-  const updateFilteredRestaurants = () => {
+  const updateFilteredRestaurants = (useCustomHeight = false) => {
     if (!mapInstance) return;
 
     const bounds = mapInstance.getBounds();
@@ -141,8 +140,10 @@ const FoodMap = () => {
     const snapPositionToUse = isRestaurantDetailsOpenRef.current ? snapPositionDetailsRef.current : snapPositionRef.current;
 
     let bottomBarHeight = 0;
-    if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
-    if (snapPositionToUse === 2) bottomBarHeight = 100;
+    if (!useCustomHeight) {
+      if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
+      if (snapPositionToUse === 2) bottomBarHeight = 100;
+    }
 
     const adjustedSouthBound = mapInstance.unproject([0, screenHeight - bottomBarHeight]).lat;
 
@@ -150,7 +151,7 @@ const FoodMap = () => {
       return restaurant.lng >= bounds.getWest() && restaurant.lng <= bounds.getEast() && restaurant.lat >= adjustedSouthBound && restaurant.lat <= bounds.getNorth();
     });
 
-    dispatch(setvVisibleRestaurants(filtered));
+    dispatch(setVisibleRestaurants(filtered));
   };
 
   useEffect(() => {
@@ -168,7 +169,7 @@ const FoodMap = () => {
   }, [mapInstance]);
 
   useEffect(() => {
-    updateFilteredRestaurants();
+    updateFilteredRestaurants(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredRestaurants]);
 

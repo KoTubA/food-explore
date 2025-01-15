@@ -23,10 +23,18 @@ interface RestaurantState {
   visibleRestaurants: Restaurant[];
   selectedRestaurant: Restaurant | null;
   isRestaurantDetailsOpen: boolean;
+  isFilterModalOpen: boolean;
   snapPosition: number;
   snapPositionDetails: number;
   loading: boolean;
   error: string | null;
+  searchQuery: string;
+  activeFilters: {
+    dietStyle: string | null;
+    categories: string[];
+    types: string[];
+    price: string | null;
+  };
 }
 
 const initialState: RestaurantState = {
@@ -35,10 +43,18 @@ const initialState: RestaurantState = {
   visibleRestaurants: [],
   selectedRestaurant: null,
   isRestaurantDetailsOpen: false,
+  isFilterModalOpen: false,
   snapPosition: 1,
   snapPositionDetails: 1,
   loading: true,
   error: null,
+  searchQuery: "",
+  activeFilters: {
+    dietStyle: null,
+    categories: [],
+    types: [],
+    price: null,
+  },
 };
 
 const restaurantsSlice = createSlice({
@@ -48,10 +64,57 @@ const restaurantsSlice = createSlice({
     setRestaurant: (state, action: PayloadAction<Restaurant[]>) => {
       state.restaurant = action.payload;
     },
-    setFilteredRestaurants: (state, action: PayloadAction<Restaurant[]>) => {
-      state.filteredRestaurants = action.payload;
+    setFilteredRestaurants: (state) => {
+      const { restaurant, searchQuery, activeFilters } = state;
+
+      // Filter by search query
+      const searchFiltered = searchQuery.trim() ? restaurant.filter((r) => r.name.toLowerCase().includes(searchQuery.toLowerCase())) : restaurant;
+
+      // Apply additional filters
+      const fullyFiltered = searchFiltered.filter((r) => {
+        // Dietary style filter
+        if (activeFilters.dietStyle && !r.dietaryStyles?.includes(activeFilters.dietStyle)) {
+          return false;
+        }
+
+        // Food categories filter
+        if (activeFilters.categories.length > 0 && !activeFilters.categories.some((category) => r.foodCategories?.includes(category))) {
+          return false;
+        }
+
+        // Restaurant type filter
+        if (activeFilters.types.length > 0 && !activeFilters.types.includes(r.type)) {
+          return false;
+        }
+
+        // Price filter
+        if (activeFilters.price && r.price !== activeFilters.price) {
+          return false;
+        }
+
+        return true;
+      });
+
+      state.filteredRestaurants = fullyFiltered;
     },
-    setvVisibleRestaurants: (state, action: PayloadAction<Restaurant[]>) => {
+    setSearchQuery: (state, action: PayloadAction<string>) => {
+      state.searchQuery = action.payload;
+      restaurantsSlice.caseReducers.setFilteredRestaurants(state); // Trigger filtering
+    },
+    setActiveFilters: (state, action: PayloadAction<RestaurantState["activeFilters"]>) => {
+      state.activeFilters = action.payload;
+      restaurantsSlice.caseReducers.setFilteredRestaurants(state); // Trigger filtering
+    },
+    resetFilters: (state) => {
+      state.activeFilters = {
+        dietStyle: null,
+        categories: [],
+        types: [],
+        price: null,
+      };
+      restaurantsSlice.caseReducers.setFilteredRestaurants(state); // Trigger filtering after reset
+    },
+    setVisibleRestaurants: (state, action: PayloadAction<Restaurant[]>) => {
       state.visibleRestaurants = action.payload;
     },
     setSelectedRestaurant: (state, action: PayloadAction<Restaurant>) => {
@@ -61,6 +124,9 @@ const restaurantsSlice = createSlice({
     closeRestaurantDetails: (state) => {
       state.isRestaurantDetailsOpen = false;
       state.selectedRestaurant = null;
+    },
+    setFilterModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isFilterModalOpen = action.payload;
     },
     setSnapPosition: (state, action: PayloadAction<number>) => {
       state.snapPosition = action.payload;
@@ -77,6 +143,6 @@ const restaurantsSlice = createSlice({
   },
 });
 
-export const { setRestaurant, setFilteredRestaurants, setvVisibleRestaurants, setSelectedRestaurant, closeRestaurantDetails, setSnapPosition, setSnapPositionDetails, setLoading, setError } = restaurantsSlice.actions;
+export const { setRestaurant, setFilteredRestaurants, setVisibleRestaurants, setSelectedRestaurant, closeRestaurantDetails, setFilterModalOpen, setSnapPosition, setSnapPositionDetails, setLoading, setError, setSearchQuery, setActiveFilters, resetFilters } = restaurantsSlice.actions;
 
 export default restaurantsSlice.reducer;

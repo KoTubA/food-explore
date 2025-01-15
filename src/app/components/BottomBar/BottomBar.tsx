@@ -10,21 +10,21 @@ import { LuWheatOff } from "react-icons/lu";
 import { RootState } from "@/src/redux/store";
 import { Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { setSelectedRestaurant, setFilteredRestaurants, setSnapPosition } from "@/src/redux/slices/restaurantsSlice";
+import { setSelectedRestaurant, setSnapPosition, setFilterModalOpen, setSearchQuery } from "@/src/redux/slices/restaurantsSlice";
 import RestaurantDetails from "@/src/app/components/RestaurantDetails/RestaurantDetails";
+import FilterModal from "@/src/app/components/FilterModal/FilterModal";
 
 const snapPoints = [0.95, 0.5, 100];
 
 const BottomBar = () => {
   const dispatch = useDispatch();
-  const restaurant = useSelector((state: RootState) => state.restaurants.restaurant);
+  const searchQuery = useSelector((state: RootState) => state.restaurants.searchQuery);
   const visibleRestaurants = useSelector((state: RootState) => state.restaurants.visibleRestaurants);
   const isRestaurantDetailsOpen = useSelector((state: RootState) => state.restaurants.isRestaurantDetailsOpen);
   const snapPosition = useSelector((state: RootState) => state.restaurants.snapPosition);
   const loading = useSelector((state: RootState) => state.restaurants.loading);
   const error = useSelector((state: RootState) => state.restaurants.error);
 
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const [inputFocused, setInputFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,11 +35,7 @@ const BottomBar = () => {
   };
 
   const handleSearch = (query: string) => {
-    // Update the local search query state with the user's input
-    setSearchQuery(query);
-
-    const filteredRestaurants = query.trim() ? restaurant.filter((r) => r.name.toLowerCase().includes(query.toLowerCase())) : restaurant;
-    dispatch(setFilteredRestaurants(filteredRestaurants));
+    dispatch(setSearchQuery(query));
   };
 
   // Handles form submission
@@ -52,8 +48,7 @@ const BottomBar = () => {
 
   // Clears the search query and restores all restaurants.
   const handleClearSearch = () => {
-    setSearchQuery("");
-    dispatch(setFilteredRestaurants(restaurant));
+    dispatch(setSearchQuery(""));
 
     // Focus the input after clearing
     if (snapPosition === 0 && inputRef.current) {
@@ -65,8 +60,7 @@ const BottomBar = () => {
 
   // Handle canceling the search
   const handleCancelSearch = () => {
-    setSearchQuery(""); // Reset search query
-    dispatch(setFilteredRestaurants(restaurant)); // Restore all restaurants
+    dispatch(setSearchQuery("")); // Reset search query
     snapToList(1); // Snap to position 1
     setInputFocused(false);
   };
@@ -89,6 +83,10 @@ const BottomBar = () => {
     if (!isRestaurantDetailsOpen) {
       dispatch(setSnapPosition(index));
     }
+  };
+
+  const openFilterModal = () => {
+    dispatch(setFilterModalOpen(true));
   };
 
   return (
@@ -132,7 +130,7 @@ const BottomBar = () => {
               </button>
 
               {/* Filter button */}
-              <button className={`justify-center items-center bg-secondaryYellow w-10 h-10 rounded-lg shadow-sm ${inputFocused ? "hidden" : "flex"}`} onClick={() => snapToList(0)}>
+              <button className={`justify-center items-center bg-secondaryYellow w-10 h-10 rounded-lg shadow-sm ${inputFocused ? "hidden" : "flex"}`} onClick={openFilterModal}>
                 <FiFilter className="text-white" />
               </button>
             </div>
@@ -231,6 +229,7 @@ const BottomBar = () => {
       </Sheet>
       {snapPosition === 0 && !isRestaurantDetailsOpen && <div className="fixed inset-0 w-full h-full bg-black/20 z-10"></div>}
       <RestaurantDetails />
+      <FilterModal />
     </>
   );
 };
