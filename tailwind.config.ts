@@ -8,6 +8,7 @@ export default {
         primaryRed: "hsl(10, 92%, 66%)",
         primaryGreen: "hsl(145, 67%, 45%)",
         primaryYellow: "hsl(47, 96%, 66%)",
+        secondaryYellowLight: "hsl(35deg 100% 68%)",
         secondaryYellow: "hsl(35, 82%, 57%)",
         darkGray: "hsl(0, 0%, 23%)",
         mediumGray: "hsl(0, 0%, 53%)",

@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSelectedRestaurant, setSnapPosition, setFilterModalOpen, setSearchQuery } from "@/src/redux/slices/restaurantsSlice";
 import RestaurantDetails from "@/src/app/components/RestaurantDetails/RestaurantDetails";
 import FilterModal from "@/src/app/components/FilterModal/FilterModal";
+import { IoSearchOutline } from "react-icons/io5";
 
 const snapPoints = [0.95, 0.5, 100];
 
@@ -211,7 +212,13 @@ const BottomBar = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="flex justify-center items-center text-mediumGray text-sm py-8">Brak miejsc w tym regionie.</p>
+                  <div className="flex flex-col items-center py-8 gap-4">
+                    <IoSearchOutline className="text-mediumGray" size={"3rem"} />
+                    <div className="flex flex-col items-center gap-1">
+                      <p className="text-darkGray font-medium">Brak wyników</p>
+                      <span className="text-mediumGray text-xs">Spróbuj innego wyszukiwania</span>
+                    </div>
+                  </div>
                 )}
               </Sheet.Scroller>
             )}

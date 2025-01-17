@@ -13,6 +13,7 @@ const FilterModal = () => {
     categories: false,
   });
   const [localFilters, setLocalFilters] = useState({
+    city: null,
     dietStyle: filters.dietStyle,
     categories: filters.categories,
     price: filters.price,
@@ -32,6 +33,7 @@ const FilterModal = () => {
   useEffect(() => {
     if (isFilterModalOpen) {
       setLocalFilters({
+        city: null,
         dietStyle: filters.dietStyle,
         categories: filters.categories,
         price: filters.price,
@@ -42,6 +44,7 @@ const FilterModal = () => {
   const closeModal = () => {
     // Przywrócenie lokalnych filtrów do wartości globalnych, jeśli nie zostały zaakceptowane
     setLocalFilters({
+      city: null,
       dietStyle: filters.dietStyle,
       categories: filters.categories,
       price: filters.price,
@@ -51,15 +54,8 @@ const FilterModal = () => {
   };
 
   const handleFilterChange = (key: keyof typeof localFilters, value: string) => {
-    if (key === "dietStyle" || key === "price") {
-      // Dla dietStyle i price tylko jedna opcja może być wybrana
-      const updatedFilter = localFilters[key] === value ? null : value;
-      setLocalFilters({
-        ...localFilters,
-        [key]: updatedFilter,
-      });
-    } else {
-      // Dla pozostałych filtrów (kategorie, typy) zachowujemy poprzednią logikę
+    if (key === "categories" || key === "price") {
+      // Allow multiple selections for categories and price
       const isActive = localFilters[key]?.includes(value);
       const updatedFilters = isActive ? localFilters[key].filter((item) => item !== value) : [...localFilters[key], value];
 
@@ -67,16 +63,21 @@ const FilterModal = () => {
         ...localFilters,
         [key]: updatedFilters,
       });
+    } else {
+      // Single selection for dietStyle
+      const updatedFilter = localFilters[key] === value ? null : value;
+      setLocalFilters({
+        ...localFilters,
+        [key]: updatedFilter,
+      });
     }
   };
 
   const isFilterActive = (key: keyof typeof localFilters, value: string) => {
-    // Dla stylu diety i ceny sprawdzamy, czy dana wartość jest aktywna
-    if (key === "dietStyle" || key === "price") {
-      return localFilters[key] === value;
+    if (key === "categories" || key === "price") {
+      return localFilters[key]?.includes(value);
     }
-    // Dla pozostałych filtrów (kategorie, typy) sprawdzamy, czy dana opcja jest w tablicy
-    return localFilters[key]?.includes(value);
+    return localFilters[key] === value;
   };
 
   const applyFilters = () => {
@@ -86,9 +87,10 @@ const FilterModal = () => {
 
   const resetLocalFilters = () => {
     setLocalFilters({
+      city: null,
       dietStyle: null,
       categories: [],
-      price: null,
+      price: [],
     });
   };
 

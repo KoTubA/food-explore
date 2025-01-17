@@ -4,7 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setRestaurant, Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { RootState } from "@/src/redux/store";
-import { setSelectedRestaurant, setFilteredRestaurants, setVisibleRestaurants, setLoading, setError } from "@/src/redux/slices/restaurantsSlice";
+import { setSelectedRestaurant, setFilteredRestaurants, setVisibleRestaurants, setLoading, setError, setSelectedLocation } from "@/src/redux/slices/restaurantsSlice";
 import CustomMarker from "@/src/app/components/FoodMap/CustomMarker";
 
 const spaceId = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
@@ -22,6 +22,7 @@ const FoodMap = () => {
   const snapPosition = useSelector((state: RootState) => state.restaurants.snapPosition);
   const snapPositionDetails = useSelector((state: RootState) => state.restaurants.snapPositionDetails);
   const isRestaurantDetailsOpen = useSelector((state: RootState) => state.restaurants.isRestaurantDetailsOpen);
+  const selectedLocation = useSelector((state: RootState) => state.restaurants.selectedLocation);
 
   // Ref to store the latest snapPosition, snapPositionDetails, isRestaurantDetailsOpen
   const filteredRestaurantsRef = useRef(filteredRestaurants);
@@ -170,6 +171,16 @@ const FoodMap = () => {
     updateFilteredRestaurants(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredRestaurants]);
+
+  useEffect(() => {
+    if (selectedLocation && mapInstance) {
+      mapInstance.jumpTo({
+        center: [selectedLocation.lng, selectedLocation.lat],
+        zoom: 11,
+      });
+      setSelectedLocation(null);
+    }
+  }, [selectedLocation, mapInstance]);
 
   const handleMarkerClick = (restaurant: Restaurant) => {
     dispatch(setSelectedRestaurant(restaurant));

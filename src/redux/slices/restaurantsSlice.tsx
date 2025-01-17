@@ -30,8 +30,9 @@ interface RestaurantState {
   activeFilters: {
     dietStyle: string | null;
     categories: string[];
-    price: string | null;
+    price: string[];
   };
+  selectedLocation: { lat: number; lng: number } | null;
 }
 
 const initialState: RestaurantState = {
@@ -49,8 +50,9 @@ const initialState: RestaurantState = {
   activeFilters: {
     dietStyle: null,
     categories: [],
-    price: null,
+    price: [],
   },
+  selectedLocation: null,
 };
 
 const restaurantsSlice = createSlice({
@@ -78,8 +80,11 @@ const restaurantsSlice = createSlice({
           return false;
         }
 
-        // Price filter
-        if (activeFilters.price && r.price !== activeFilters.price) {
+        if (
+          activeFilters.price.length > 0 &&
+          r.price && // Ensure r.price is defined
+          !activeFilters.price.includes(r.price)
+        ) {
           return false;
         }
 
@@ -100,9 +105,12 @@ const restaurantsSlice = createSlice({
       state.activeFilters = {
         dietStyle: null,
         categories: [],
-        price: null,
+        price: [],
       };
       restaurantsSlice.caseReducers.setFilteredRestaurants(state); // Trigger filtering after reset
+    },
+    setSelectedLocation: (state, action: PayloadAction<{ lat: number; lng: number } | null>) => {
+      state.selectedLocation = action.payload;
     },
     setVisibleRestaurants: (state, action: PayloadAction<Restaurant[]>) => {
       state.visibleRestaurants = action.payload;
@@ -133,6 +141,6 @@ const restaurantsSlice = createSlice({
   },
 });
 
-export const { setRestaurant, setFilteredRestaurants, setVisibleRestaurants, setSelectedRestaurant, closeRestaurantDetails, setFilterModalOpen, setSnapPosition, setSnapPositionDetails, setLoading, setError, setSearchQuery, setActiveFilters, resetFilters } = restaurantsSlice.actions;
+export const { setRestaurant, setFilteredRestaurants, setVisibleRestaurants, setSelectedRestaurant, closeRestaurantDetails, setFilterModalOpen, setSnapPosition, setSnapPositionDetails, setLoading, setError, setSearchQuery, setActiveFilters, resetFilters, setSelectedLocation } = restaurantsSlice.actions;
 
 export default restaurantsSlice.reducer;

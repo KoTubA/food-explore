@@ -5,7 +5,7 @@ import { AppProviders } from "@/src/providers/AppProviders";
 
 const roboto = Roboto({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
+  weight: ["300", "400", "500", "700", "900"],
   variable: "--font-roboto",
 });
 
