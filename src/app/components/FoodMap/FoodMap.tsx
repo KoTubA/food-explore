@@ -10,6 +10,19 @@ import CustomMarker from "@/src/app/components/FoodMap/CustomMarker";
 const spaceId = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
 const accessToken = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN;
 
+// Dynamically adjust zoom level based on screen width
+const getZoomLevel = (zoom: number) => {
+  const screenWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+
+  if (screenWidth <= 768) {
+    return zoom;
+  } else if (screenWidth <= 1024) {
+    return zoom + 1;
+  } else {
+    return zoom + 2;
+  }
+};
+
 const FoodMap = () => {
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
@@ -156,7 +169,7 @@ const FoodMap = () => {
   useEffect(() => {
     if (mapInstance) {
       mapInstance.on("moveend", updateFilteredRestaurants); // Trigger updateFilteredRestaurants only on moveend
-      updateFilteredRestaurants(); // Initial filtering on map load
+      updateFilteredRestaurants(true); // Initial filtering on map load
     }
 
     return () => {
@@ -176,11 +189,24 @@ const FoodMap = () => {
     if (selectedLocation && mapInstance) {
       mapInstance.jumpTo({
         center: [selectedLocation.lng, selectedLocation.lat],
-        zoom: 11,
+        zoom: 10,
       });
       setSelectedLocation(null);
     }
   }, [selectedLocation, mapInstance]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && selectedLocation && mapInstance) {
+      const zoomLevel = getZoomLevel(9);
+
+      mapInstance.jumpTo({
+        center: [selectedLocation.lng, selectedLocation.lat],
+        zoom: zoomLevel,
+      });
+
+      dispatch(setSelectedLocation(null));
+    }
+  }, [selectedLocation, mapInstance, dispatch]);
 
   const handleMarkerClick = (restaurant: Restaurant) => {
     dispatch(setSelectedRestaurant(restaurant));
@@ -198,9 +224,9 @@ const FoodMap = () => {
         style={{ width: "100%", height: "100%" }}
         mapStyle={mapStyle}
         initialViewState={{
-          longitude: 19.944,
-          latitude: 50.049,
-          zoom: 11,
+          longitude: 19.1451,
+          latitude: 51.9194,
+          zoom: getZoomLevel(4), // Dynamically adjust zoom based on screen width
         }}
       >
         <NavigationControl position="top-right" />

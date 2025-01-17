@@ -19,7 +19,7 @@ const Walkthrough = ({ onComplete }: { onComplete: (option: string) => void }) =
       {step === 1 && (
         <div className="flex flex-col items-center p-4 gap-10 flex-grow">
           <div className="relative flex-grow w-full">
-            <Image src="/Illustration-1.svg" alt="Krok 1" layout="fill" width={0} height={0} className="object-contain max-h-64 px-4 flex self-center" />
+            <Image src="/Illustration-1.svg" alt="Krok 1" layout="fill" className="object-contain max-h-64 px-4 flex self-center" />
           </div>
           <div className="flex flex-col">
             <h2 className="text-[28px] text-darkGray font-bold">Witamy!</h2>
@@ -43,7 +43,7 @@ const Walkthrough = ({ onComplete }: { onComplete: (option: string) => void }) =
       {step === 2 && (
         <div className="flex flex-col items-center p-4 gap-10 flex-grow">
           <div className="relative flex-grow w-full">
-            <Image src="/Illustration-2.svg" alt="Krok 2" layout="fill" width={0} height={0} className="object-contain px-4 flex self-center" />
+            <Image src="/Illustration-2.svg" alt="Krok 2" layout="fill" className="object-contain px-4 flex self-center" />
           </div>
           <div className="flex flex-col">
             <h2 className="text-[28px] text-darkGray font-bold">Zacznij odkrywać</h2>
@@ -67,7 +67,7 @@ const Walkthrough = ({ onComplete }: { onComplete: (option: string) => void }) =
       {step === 3 && (
         <div className="flex flex-col items-center p-4 gap-10 flex-grow">
           <div className="relative flex-grow w-full">
-            <Image src="/Illustration-3.svg" alt="Krok 3" layout="fill" width={0} height={0} className="object-contain px-4 flex self-center" />
+            <Image src="/Illustration-3.svg" alt="Krok 3" layout="fill" className="object-contain px-4 flex self-center" />
           </div>
           <div className="flex flex-col">
             <h2 className="text-[28px] text-darkGray font-bold">Twój wybór</h2>
