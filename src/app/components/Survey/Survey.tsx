@@ -10,7 +10,7 @@ const questions = [
   {
     id: 1,
     question: "Wybierz dostępne miasto",
-    options: ["Cała Polska", "Kraków", "Warszawa", "Gdańsk"],
+    options: ["Cała Polska", "Kraków", "Warszawa", "Trójmiasto"],
     multiple: false,
   },
   {
@@ -28,15 +28,47 @@ const questions = [
   {
     id: 4,
     question: "Wybierz kategorie restauracji",
-    options: ["Cukiernia", "Lody", "Fast food", "Piekarnia", "Kawiarnia", "Bistro", "Pub", "Bar", "Restauracja", "Lunche", "Kanapki", "Hamburgery", "Naleśniki", "Pizza", "Strefa gastronomiczna", "Kuchnia grecka", "Kuchnia meksykańska", "Kuchnia polska", "Kuchnia włoska", "Kuchnia turecka", "Kuchnia wietnamska", "Kuchnia japońska", "Kuchnia hiszpańska", "Kuchnia tajska", "Kuchnia bliskowschodnia", "Kuchnia europejska", "Kuchnia azjatycka", "Kuchnia amerykańska", "Kuchnia neapolitańska"],
+    options: [
+      "Cukiernia",
+      "Lody",
+      "Fast food",
+      "Piekarnia",
+      "Kawiarnia",
+      "Bistro",
+      "Pub",
+      "Bar",
+      "Restauracja",
+      "Śniadania",
+      "Kanapki",
+      "Hamburgery",
+      "Naleśniki",
+      "Pizza",
+      "Makaron",
+      "Pączkaria",
+      "Strefa gastronomiczna",
+      "Kuchnia grecka",
+      "Kuchnia meksykańska",
+      "Kuchnia polska",
+      "Kuchnia włoska",
+      "Kuchnia turecka",
+      "Kuchnia wietnamska",
+      "Kuchnia japońska",
+      "Kuchnia hiszpańska",
+      "Kuchnia tajska",
+      "Kuchnia bliskowschodnia",
+      "Kuchnia europejska",
+      "Kuchnia azjatycka",
+      "Kuchnia amerykańska",
+      "Kuchnia neapolitańska",
+    ],
     multiple: true,
   },
 ];
 
-const cityCoordinates: Record<string, { lat: number; lng: number } | null> = {
-  Kraków: { lat: 50.0647, lng: 19.945 },
-  Warszawa: { lat: 52.2297, lng: 21.0122 },
-  Gdańsk: { lat: 54.352, lng: 18.6466 },
+const cityCoordinates: Record<string, { lat: number; lng: number; zoom: number } | null> = {
+  Kraków: { lat: 50.0647, lng: 19.945, zoom: 9 },
+  Warszawa: { lat: 52.2297, lng: 21.0122, zoom: 9 },
+  Trójmiasto: { lat: 54.4295, lng: 18.5876, zoom: 10 },
   "Cała Polska": null,
 };
 

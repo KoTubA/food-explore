@@ -32,7 +32,7 @@ interface RestaurantState {
     categories: string[];
     price: string[];
   };
-  selectedLocation: { lat: number; lng: number } | null;
+  selectedLocation: { lat: number; lng: number; zoom: number } | null;
 }
 
 const initialState: RestaurantState = {
@@ -109,7 +109,7 @@ const restaurantsSlice = createSlice({
       };
       restaurantsSlice.caseReducers.setFilteredRestaurants(state); // Trigger filtering after reset
     },
-    setSelectedLocation: (state, action: PayloadAction<{ lat: number; lng: number } | null>) => {
+    setSelectedLocation: (state, action: PayloadAction<{ lat: number; lng: number; zoom: number } | null>) => {
       state.selectedLocation = action.payload;
     },
     setVisibleRestaurants: (state, action: PayloadAction<Restaurant[]>) => {

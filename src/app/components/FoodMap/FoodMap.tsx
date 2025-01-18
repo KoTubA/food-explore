@@ -197,7 +197,7 @@ const FoodMap = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined" && selectedLocation && mapInstance) {
-      const zoomLevel = getZoomLevel(9);
+      const zoomLevel = getZoomLevel(selectedLocation.zoom);
 
       mapInstance.jumpTo({
         center: [selectedLocation.lng, selectedLocation.lat],
