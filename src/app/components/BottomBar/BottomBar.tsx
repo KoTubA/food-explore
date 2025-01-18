@@ -14,6 +14,7 @@ import { setSelectedRestaurant, setSnapPosition, setFilterModalOpen, setSearchQu
 import RestaurantDetails from "@/src/app/components/RestaurantDetails/RestaurantDetails";
 import FilterModal from "@/src/app/components/FilterModal/FilterModal";
 import { IoSearchOutline } from "react-icons/io5";
+import { CiImageOff } from "react-icons/ci";
 
 const snapPoints = [0.95, 0.5, 100];
 
@@ -163,8 +164,8 @@ const BottomBar = () => {
                 {visibleRestaurants.length > 0 ? (
                   visibleRestaurants.map((restaurant) => (
                     <div key={restaurant.id} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(restaurant)}>
-                      <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
-                        {restaurant.image ? <Image src={restaurant.image.url} alt={restaurant.name} className="object-cover animate-fadeIn" fill key={restaurant.image?.url} /> : <span># {restaurant.id + 1}</span>}
+                      <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
+                        {restaurant.image ? <Image src={restaurant.image.url} alt={restaurant.name} className="object-cover animate-fadeIn" fill key={restaurant.image?.url} /> : <CiImageOff size={"2rem"} />}
                       </div>
                       <div className="flex flex-col space-y-1 animate-fadeIn">
                         <h4 className="text-xl font-light">{restaurant.name}</h4>

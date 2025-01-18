@@ -125,39 +125,7 @@ const FilterModal = () => {
                 </div>
                 <div className={`relative overflow-hidden ${expandedSections.categories ? "h-auto" : "h-44"}`}>
                   <div className="flex flex-wrap gap-2">
-                    {[
-                      "Cukiernia",
-                      "Lody",
-                      "Fast food",
-                      "Piekarnia",
-                      "Kawiarnia",
-                      "Bistro",
-                      "Pub",
-                      "Bar",
-                      "Restauracja",
-                      "Kanapki",
-                      "Hamburgery",
-                      "Naleśniki",
-                      "Pizza",
-                      "Makaron",
-                      "Pączkaria",
-                      "Śniadania",
-                      "Strefa gastronomiczna",
-                      "Kuchnia grecka",
-                      "Kuchnia meksykańska",
-                      "Kuchnia polska",
-                      "Kuchnia włoska",
-                      "Kuchnia turecka",
-                      "Kuchnia wietnamska",
-                      "Kuchnia japońska",
-                      "Kuchnia hiszpańska",
-                      "Kuchnia tajska",
-                      "Kuchnia bliskowschodnia",
-                      "Kuchnia europejska",
-                      "Kuchnia azjatycka",
-                      "Kuchnia amerykańska",
-                      "Kuchnia neapolitańska",
-                    ].map((type) => (
+                    {["Kawiarnia", "Cukiernia", "Lody", "Piekarnia", "Fast food", "Pub", "Bar", "Restauracja", "Hamburgery", "Pizza", "Makaron", "Ramen", "Pączkaria", "Śniadania", "Strefa gastronomiczna", "Kuchnia grecka", "Kuchnia meksykańska", "Kuchnia polska", "Kuchnia włoska", "Kuchnia turecka", "Kuchnia wietnamska", "Kuchnia japońska", "Kuchnia hiszpańska", "Kuchnia tajska", "Kuchnia bliskowschodnia", "Kuchnia europejska", "Kuchnia azjatycka", "Kuchnia amerykańska"].map((type) => (
                       <button key={type} onClick={() => handleFilterChange("categories", type)} className={`px-3 py-[6px] rounded-2xl capitalize font-medium text-xs ${isFilterActive("categories", type) ? "bg-secondaryYellow text-white" : "bg-secondaryYellow/15 text-secondaryYellow"}`}>
                         {type}
                       </button>

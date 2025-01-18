@@ -13,6 +13,7 @@ import { FaRegCopy, FaGoogle, FaSeedling, FaLeaf } from "react-icons/fa";
 import { FaLocationDot, FaEarthAmericas, FaMoneyBills } from "react-icons/fa6";
 import { LuWheatOff } from "react-icons/lu";
 import { FiCheck } from "react-icons/fi";
+import { CiImageOff } from "react-icons/ci";
 
 const RestaurantDetails = () => {
   const router = useRouter();
@@ -142,8 +143,8 @@ const RestaurantDetails = () => {
               <Sheet.Scroller>
                 <div className="flex flex-col space-y-4">
                   <div className="flex flex-col px-4 space-y-4">
-                    <div className="bg-lightGray flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden relative rounded-xl " style={{ aspectRatio: "16 / 9" }}>
-                      {selectedRestaurant.image ? <Image src={selectedRestaurant.image.url} alt={selectedRestaurant.name} className="object-cover animate-fadeIn" fill key={selectedRestaurant.image?.url} /> : <span>No media</span>}
+                    <div className="bg-lightGray flex items-center justify-center text-gray-500 font-bold text-xl overflow-hidden relative rounded-xl " style={{ aspectRatio: "16 / 9" }}>
+                      {selectedRestaurant.image ? <Image src={selectedRestaurant.image.url} alt={selectedRestaurant.name} className="object-cover animate-fadeIn" fill key={selectedRestaurant.image?.url} /> : <CiImageOff size={"2rem"} />}
                     </div>
                   </div>
                   <div className="flex flex-col text-mediumGray text-sm border-b border-lightGray">
