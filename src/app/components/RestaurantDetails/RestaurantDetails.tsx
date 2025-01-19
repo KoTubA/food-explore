@@ -72,7 +72,7 @@ const RestaurantDetails = () => {
 
   return (
     <>
-      <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onSnap={handleSnap} onClose={() => {}} snapPoints={[0.95, 0.5, 100]} initialSnap={snapPositionDetails}>
+      <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onSnap={handleSnap} onClose={() => {}} snapPoints={[0.95, 0.5, 86]} initialSnap={snapPositionDetails}>
         <Sheet.Container>
           <Sheet.Header />
           {selectedRestaurant ? (

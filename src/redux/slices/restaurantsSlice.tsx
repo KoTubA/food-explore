@@ -101,6 +101,25 @@ const restaurantsSlice = createSlice({
       state.activeFilters = action.payload;
       restaurantsSlice.caseReducers.setFilteredRestaurants(state); // Trigger filtering
     },
+    removeActiveFilter: (state, action: PayloadAction<{ filterType: string }>) => {
+      const { filterType } = action.payload;
+
+      // Usuwamy wybrany filtr
+      switch (filterType) {
+        case "categories":
+          state.activeFilters.categories = [];
+          break;
+        case "price":
+          state.activeFilters.price = [];
+          break;
+        case "dietStyle":
+          state.activeFilters.dietStyle = null;
+          break;
+        default:
+          break;
+      }
+      restaurantsSlice.caseReducers.setFilteredRestaurants(state); // Trigger filtering after reset
+    },
     resetFilters: (state) => {
       state.activeFilters = {
         dietStyle: null,
@@ -141,6 +160,6 @@ const restaurantsSlice = createSlice({
   },
 });
 
-export const { setRestaurant, setFilteredRestaurants, setVisibleRestaurants, setSelectedRestaurant, closeRestaurantDetails, setFilterModalOpen, setSnapPosition, setSnapPositionDetails, setLoading, setError, setSearchQuery, setActiveFilters, resetFilters, setSelectedLocation } = restaurantsSlice.actions;
+export const { setRestaurant, setFilteredRestaurants, setVisibleRestaurants, setSelectedRestaurant, closeRestaurantDetails, setFilterModalOpen, setSnapPosition, setSnapPositionDetails, setLoading, setError, setSearchQuery, setActiveFilters, removeActiveFilter, resetFilters, setSelectedLocation } = restaurantsSlice.actions;
 
 export default restaurantsSlice.reducer;

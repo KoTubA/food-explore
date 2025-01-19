@@ -154,7 +154,7 @@ const FoodMap = () => {
     let bottomBarHeight = 0;
     if (!useCustomHeight) {
       if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
-      if (snapPositionToUse === 2) bottomBarHeight = 100;
+      if (snapPositionToUse === 2) bottomBarHeight = 86;
     }
 
     const adjustedSouthBound = mapInstance.unproject([0, screenHeight - bottomBarHeight]).lat;

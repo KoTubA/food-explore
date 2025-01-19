@@ -10,13 +10,13 @@ import { LuWheatOff } from "react-icons/lu";
 import { RootState } from "@/src/redux/store";
 import { Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { setSelectedRestaurant, setSnapPosition, setFilterModalOpen, setSearchQuery } from "@/src/redux/slices/restaurantsSlice";
+import { setSelectedRestaurant, setSnapPosition, setFilterModalOpen, setSearchQuery, removeActiveFilter } from "@/src/redux/slices/restaurantsSlice";
 import RestaurantDetails from "@/src/app/components/RestaurantDetails/RestaurantDetails";
 import FilterModal from "@/src/app/components/FilterModal/FilterModal";
 import { IoSearchOutline } from "react-icons/io5";
 import { CiImageOff } from "react-icons/ci";
 
-const snapPoints = [0.95, 0.5, 100];
+const snapPoints = [0.95, 0.5, 86];
 
 const BottomBar = () => {
   const dispatch = useDispatch();
@@ -26,6 +26,7 @@ const BottomBar = () => {
   const snapPosition = useSelector((state: RootState) => state.restaurants.snapPosition);
   const loading = useSelector((state: RootState) => state.restaurants.loading);
   const error = useSelector((state: RootState) => state.restaurants.error);
+  const activeFilters = useSelector((state: RootState) => state.restaurants.activeFilters);
 
   const [inputFocused, setInputFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -35,6 +36,20 @@ const BottomBar = () => {
     dispatch(setSnapPosition(i));
     listSheetRef.current?.snapTo(i);
   };
+
+  // Obliczenie liczby aktywnych filtrów
+  const activeFilterCount = Object.entries(activeFilters).reduce((count, [, value]) => {
+    if (Array.isArray(value)) {
+      return count + (value.length > 0 ? 1 : 0);
+    } else {
+      return count + (value ? 1 : 0);
+    }
+  }, 0);
+
+  // Szczegóły wybranych filtrów
+  const selectedCategories = activeFilters.categories?.length || 0;
+  const selectedPrices = activeFilters.price?.length || 0;
+  const dietStyleSelected = !!activeFilters.dietStyle;
 
   const handleSearch = (query: string) => {
     dispatch(setSearchQuery(query));
@@ -97,7 +112,7 @@ const BottomBar = () => {
         <Sheet.Container>
           <Sheet.Header />
           <Sheet.Content style={{ paddingBottom: listSheetRef.current?.y }}>
-            <div className="flex items-center space-x-3 pb-5 px-4">
+            <div className="flex items-center space-x-3 px-4 pb-4">
               <div className="relative flex items-center flex-grow bg-veryLightGray rounded-lg px-4 py-2 border-lightGray border">
                 <form className="w-full flex" onSubmit={handleFormSubmit} action="">
                   <IoSearch className="text-mediumGray" />
@@ -132,10 +147,50 @@ const BottomBar = () => {
               </button>
 
               {/* Filter button */}
-              <button className={`justify-center items-center bg-secondaryYellow w-10 h-10 rounded-lg shadow-sm ${inputFocused ? "hidden" : "flex"}`} onClick={openFilterModal}>
+              <button className={`relative justify-center items-center bg-secondaryYellow w-10 h-10 rounded-lg shadow-sm flex`} onClick={openFilterModal}>
                 <FiFilter className="text-white" />
+                {activeFilterCount > 0 && <span className="absolute top-0 right-0 bg-primaryRed text-white text-xs w-5 h-5 rounded-full flex items-center justify-center translate-x-[50%] translate-y-[-50%]">{activeFilterCount}</span>}
               </button>
             </div>
+            {/* Szczegóły aktywnych filtrów */}
+            {activeFilterCount > 0 && (
+              <div className="flex px-4 pb-3 gap-2">
+                {/* Kategoria */}
+                {selectedCategories && selectedCategories === 1 ? (
+                  <button className={`flex items-center gap-2 px-3 py-[6px] rounded-2xl capitalize font-medium text-xs bg-secondaryYellow text-white`} onClick={() => dispatch(removeActiveFilter({ filterType: "categories" }))}>
+                    <span>{activeFilters.categories[0]}</span>
+                    <IoClose />
+                  </button>
+                ) : selectedCategories && selectedCategories > 1 ? (
+                  <button className={`flex items-center gap-2 px-3 py-[6px] rounded-2xl capitalize font-medium text-xs bg-secondaryYellow text-white`} onClick={() => dispatch(removeActiveFilter({ filterType: "categories" }))}>
+                    <span>{selectedCategories} Kategorie</span>
+                    <IoClose />
+                  </button>
+                ) : null}
+
+                {/* Cena */}
+                {selectedPrices && selectedPrices === 1 ? (
+                  <button className={`flex items-center gap-2 px-3 py-[6px] rounded-2xl capitalize font-medium text-xs bg-secondaryYellow text-white`} onClick={() => dispatch(removeActiveFilter({ filterType: "price" }))}>
+                    <span>{activeFilters.price[0]}</span>
+                    <IoClose />
+                  </button>
+                ) : selectedPrices && selectedPrices > 1 ? (
+                  <button className={`flex items-center gap-2 px-3 py-[6px] rounded-2xl capitalize font-medium text-xs bg-secondaryYellow text-white`} onClick={() => dispatch(removeActiveFilter({ filterType: "price" }))}>
+                    <span>{selectedPrices} Ceny</span>
+                    <IoClose />
+                  </button>
+                ) : null}
+
+                {/* Diet Style */}
+                {dietStyleSelected ? (
+                  <button className={`flex items-center gap-2 px-3 py-[6px] rounded-2xl capitalize font-medium text-xs bg-secondaryYellow text-white`} onClick={() => dispatch(removeActiveFilter({ filterType: "dietStyle" }))}>
+                    <span>{activeFilters.dietStyle}</span>
+                    <IoClose />
+                  </button>
+                ) : null}
+              </div>
+            )}
+
             {/* Loading State */}
             {loading && (
               <div className="flex justify-center items-center text-sm py-8">
