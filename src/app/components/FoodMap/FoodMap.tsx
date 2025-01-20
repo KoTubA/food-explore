@@ -137,7 +137,6 @@ const FoodMap = () => {
 
       // Determine the zoom level based on whether the restaurant is from the URL or not
       const zoomLevel = selectedRestaurant.isFromUrl ? 14 : mapInstance.getZoom();
-      console.log(selectedRestaurant.isFromUrl, zoomLevel);
 
       // If the marker is outside the screen or the restaurant is from the URL, perform centering and zoom
       if (shouldCenter || selectedRestaurant.isFromUrl) {

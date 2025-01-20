@@ -9,6 +9,11 @@ a {
 html,
 body {
   font-family: "Roboto", sans-serif;
+}
+
+html,
+body,
+.list-container {
   overscroll-behavior: none; /* Disables bounce */
 }
 

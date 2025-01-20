@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Sheet, type SheetRef } from "react-modal-sheet";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { IoSearch, IoClose } from "react-icons/io5";
 import { FiFilter } from "react-icons/fi";
 import { FaSeedling, FaLeaf } from "react-icons/fa";
@@ -15,6 +15,13 @@ import RestaurantDetails from "@/src/app/components/RestaurantDetails/Restaurant
 import FilterModal from "@/src/app/components/FilterModal/FilterModal";
 import { IoSearchOutline } from "react-icons/io5";
 import { CiImageOff } from "react-icons/ci";
+import { VariableSizeList as List } from "react-window";
+
+interface RowProps {
+  index: number;
+  data: Restaurant;
+  setRowHeight: (index: number, size: number) => void;
+}
 
 const snapPoints = [0.95, 0.5, 86];
 
@@ -30,6 +37,8 @@ const BottomBar = () => {
 
   const [inputFocused, setInputFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [disableDrag, setDisableDrag] = useState(false);
 
   const listSheetRef = useRef<SheetRef>(null);
   const snapToList = (i: number) => {
@@ -50,6 +59,22 @@ const BottomBar = () => {
   const selectedCategories = activeFilters.categories?.length || 0;
   const selectedPrices = activeFilters.price?.length || 0;
   const dietStyleSelected = !!activeFilters.dietStyle;
+
+  const handleScroll = useCallback(
+    (props: { scrollOffset: number }) => {
+      const scrollTop = props.scrollOffset; // scrollOffset to liczba reprezentująca pozycję przewijania
+
+      // Jeśli snapPosition jest różne od 0, disableDrag ustawiamy na false
+      if (snapPosition !== 0) {
+        setDisableDrag(false);
+      } else if (scrollTop === 0 && snapPosition === 0) {
+        setDisableDrag(false); // Ustawiamy disableDrag na false, gdy oba warunki są spełnione
+      } else {
+        setDisableDrag(true); // W przeciwnym razie ustawiamy disableDrag na true
+      }
+    },
+    [snapPosition]
+  );
 
   const handleSearch = (query: string) => {
     dispatch(setSearchQuery(query));
@@ -99,6 +124,7 @@ const BottomBar = () => {
   };
 
   const handleSnap = (index: number) => {
+    if (snapPosition === index) return;
     // When restaurant details are opened (isRestaurantDetailsOpen === true),
     // the sheet closes, triggering onSnap with the highest snap value.
     // Avoid saving this value to preserve the previous snap position.
@@ -111,12 +137,85 @@ const BottomBar = () => {
     dispatch(setFilterModalOpen(true));
   };
 
+  const listRef = useRef<List>(null);
+  const rowHeights = useRef<{ [key: number]: number }>({});
+
+  const getItemSize = (index: number) => {
+    return rowHeights.current[index] + 15 || 130;
+  };
+
+  const setRowHeight = useCallback((index: number, size: number) => {
+    rowHeights.current = { ...rowHeights.current, [index]: size };
+    listRef.current?.resetAfterIndex(index);
+  }, []);
+
+  const Row: React.FC<RowProps> = ({ index, data, setRowHeight }) => {
+    const rowRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      if (rowRef.current) {
+        setRowHeight(index, rowRef.current.clientHeight);
+      }
+    }, [index, setRowHeight]);
+
+    return (
+      <div ref={rowRef} key={data.id} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(data)}>
+        <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
+          {data.image ? <Image src={data.image.url} alt={data.name} className="object-cover" fill key={data.image?.url} /> : <CiImageOff size={"2rem"} />}
+        </div>
+        <div className="flex flex-col space-y-1object-cover">
+          <h4 className="text-xl font-light">{data.name}</h4>
+          <div className="text-sm text-mediumGray flex items-center space-x-2">
+            {data.categories && (
+              <span className="flex items-center">
+                <span>{data.categories}</span>
+              </span>
+            )}
+            {data.price && (
+              <span className="flex items-center space-x-2">
+                <span>•</span>
+                <span>{data.price}</span>
+              </span>
+            )}
+            {data.dietaryStyles && data.dietaryStyles.length > 0 && (
+              <>
+                {data.dietaryStyles.map((category) => {
+                  let icon;
+                  switch (category) {
+                    case "Wegetariańska":
+                      icon = <FaLeaf className="text-primaryGreen" />;
+                      break;
+                    case "Wegańska":
+                      icon = <FaSeedling className="text-primaryGreen" />;
+                      break;
+                    case "Bezglutenowa":
+                      icon = <LuWheatOff className="text-primaryRed" />;
+                      break;
+                    default:
+                      icon = null;
+                  }
+
+                  return (
+                    <span key={category} className="flex items-center space-x-2">
+                      <span>•</span>
+                      {icon}
+                    </span>
+                  );
+                })}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <Sheet ref={listSheetRef} isOpen={!isRestaurantDetailsOpen} onClose={() => {}} snapPoints={snapPoints} initialSnap={snapPosition} onSnap={handleSnap}>
         <Sheet.Container>
           <Sheet.Header />
-          <Sheet.Content style={{ paddingBottom: listSheetRef.current?.y }}>
+          <Sheet.Content style={{ paddingBottom: listSheetRef.current?.y }} disableDrag={disableDrag}>
             <div className="flex items-center space-x-3 px-4 pb-4">
               <div className="relative flex items-center flex-grow bg-veryLightGray rounded-lg px-4 py-2 border-lightGray border">
                 <form className="w-full flex" onSubmit={handleFormSubmit} action="">
@@ -132,6 +231,7 @@ const BottomBar = () => {
                       snapToList(0);
                       setInputFocused(true);
                     }}
+                    onFocus={(e) => e.preventDefault()}
                     onBlur={handleBlur}
                     autoComplete="off"
                     autoCorrect="off"
@@ -152,7 +252,7 @@ const BottomBar = () => {
               </button>
 
               {/* Filter button */}
-              <button className={`relative justify-center items-center bg-secondaryYellow w-10 h-10 rounded-lg shadow-sm flex`} onClick={openFilterModal}>
+              <button className={`relative justify-center items-center bg-secondaryYellow w-10 h-10 rounded-lg shadow-sm ${inputFocused ? "hidden" : "flex"}`} onClick={openFilterModal}>
                 <FiFilter className="text-white" />
                 {activeFilterCount > 0 && <span className="absolute top-0 right-0 bg-primaryRed text-white text-xs w-5 h-5 rounded-full flex items-center justify-center translate-x-[50%] translate-y-[-50%]">{activeFilterCount}</span>}
               </button>
@@ -220,58 +320,31 @@ const BottomBar = () => {
             )}
 
             {!loading && !error && (
-              <div className={`flex flex-col h-full ${snapPosition === 0 ? "overflow-y-auto" : "overflow-hidden"}`}>
+              <>
                 {visibleRestaurants.length > 0 ? (
-                  visibleRestaurants.map((restaurant) => (
-                    <div key={restaurant.id} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(restaurant)}>
-                      <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
-                        {restaurant.image ? <Image src={restaurant.image.url} alt={restaurant.name} className="object-cover animate-fadeIn" fill key={restaurant.image?.url} /> : <CiImageOff size={"2rem"} />}
+                  <List
+                    height={100}
+                    itemCount={visibleRestaurants.length}
+                    itemSize={getItemSize}
+                    width={"100%"}
+                    ref={listRef}
+                    itemData={visibleRestaurants}
+                    style={{
+                      overflowX: "hidden",
+                      overflowY: snapPosition === 0 ? "auto" : "hidden",
+                      display: "flex",
+                      flexGrow: 1,
+                      height: "100%",
+                    }}
+                    className="list-container"
+                    onScroll={handleScroll}
+                  >
+                    {({ data, index, style }) => (
+                      <div style={style}>
+                        <Row data={data[index]} index={index} setRowHeight={setRowHeight} />
                       </div>
-                      <div className="flex flex-col space-y-1 animate-fadeIn">
-                        <h4 className="text-xl font-light">{restaurant.name}</h4>
-                        <div className="text-sm text-mediumGray flex items-center space-x-2">
-                          {restaurant.categories && (
-                            <span className="flex items-center">
-                              <span>{restaurant.categories}</span>
-                            </span>
-                          )}
-                          {restaurant.price && (
-                            <span className="flex items-center space-x-2">
-                              <span>•</span>
-                              <span>{restaurant.price}</span>
-                            </span>
-                          )}
-                          {restaurant.dietaryStyles && restaurant.dietaryStyles.length > 0 && (
-                            <>
-                              {restaurant.dietaryStyles.map((category) => {
-                                let icon;
-                                switch (category) {
-                                  case "Wegetariańska":
-                                    icon = <FaLeaf className="text-primaryGreen" />;
-                                    break;
-                                  case "Wegańska":
-                                    icon = <FaSeedling className="text-primaryGreen" />;
-                                    break;
-                                  case "Bezglutenowa":
-                                    icon = <LuWheatOff className="text-primaryRed" />;
-                                    break;
-                                  default:
-                                    icon = null;
-                                }
-
-                                return (
-                                  <span key={category} className="flex items-center space-x-2">
-                                    <span>•</span>
-                                    {icon}
-                                  </span>
-                                );
-                              })}
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))
+                    )}
+                  </List>
                 ) : (
                   <div className="flex flex-col items-center py-8 gap-4">
                     <IoSearchOutline className="text-mediumGray" size={"3rem"} />
@@ -281,7 +354,7 @@ const BottomBar = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </>
             )}
           </Sheet.Content>
         </Sheet.Container>

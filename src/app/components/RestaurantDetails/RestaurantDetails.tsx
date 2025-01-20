@@ -63,7 +63,7 @@ const RestaurantDetails = () => {
       setHasExecuted(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [restaurantSlug]);
+  }, []);
 
   useEffect(() => {
     if (selectedRestaurant) {
