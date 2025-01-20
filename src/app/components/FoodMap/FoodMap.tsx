@@ -120,8 +120,8 @@ const FoodMap = () => {
   }, [isMapLoaded, isDataLoaded, dispatch]);
 
   useEffect(() => {
-    if (selectedRestaurant && mapInstance) {
-      const markerPosition = mapInstance.project([selectedRestaurant.lng, selectedRestaurant.lat]);
+    if (selectedRestaurant.data && mapInstance) {
+      const markerPosition = mapInstance.project([selectedRestaurant.data.lng, selectedRestaurant.data.lat]);
 
       const screenHeight = window.innerHeight;
       const screenWidth = window.innerWidth;
@@ -132,9 +132,18 @@ const FoodMap = () => {
       const thresholdWidthLow = screenWidth * 0.2;
       const thresholdWidthHigh = screenWidth * 0.8;
 
-      if (markerPosition.y < thresholdHeightLow || markerPosition.y > thresholdHeightTop || markerPosition.x < thresholdWidthLow || markerPosition.x > thresholdWidthHigh) {
+      // Check if the marker is outside the visible area of the screen
+      const shouldCenter = markerPosition.y < thresholdHeightLow || markerPosition.y > thresholdHeightTop || markerPosition.x < thresholdWidthLow || markerPosition.x > thresholdWidthHigh;
+
+      // Determine the zoom level based on whether the restaurant is from the URL or not
+      const zoomLevel = selectedRestaurant.isFromUrl ? 14 : mapInstance.getZoom();
+      console.log(selectedRestaurant.isFromUrl, zoomLevel);
+
+      // If the marker is outside the screen or the restaurant is from the URL, perform centering and zoom
+      if (shouldCenter || selectedRestaurant.isFromUrl) {
         mapInstance.easeTo({
-          center: [selectedRestaurant.lng, selectedRestaurant.lat],
+          center: [selectedRestaurant.data.lng, selectedRestaurant.data.lat],
+          zoom: zoomLevel,
           offset: [0, -screenHeight * 0.25],
           essential: true,
         });
@@ -209,7 +218,12 @@ const FoodMap = () => {
   }, [selectedLocation, mapInstance, dispatch]);
 
   const handleMarkerClick = (restaurant: Restaurant) => {
-    dispatch(setSelectedRestaurant(restaurant));
+    dispatch(
+      setSelectedRestaurant({
+        data: restaurant,
+        isFromUrl: false,
+      })
+    );
   };
 
   const mapStyle = "https://tiles.openfreemap.org/styles/liberty";

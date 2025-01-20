@@ -21,6 +21,8 @@ const RestaurantDetails = () => {
   const searchParams = useSearchParams();
   const restaurantSlug = searchParams.get("restaurant");
   const dispatch = useDispatch();
+  // Tracks if the effect has run once, ensuring the logic only executes when the slug is set for the first time
+  const [hasExecuted, setHasExecuted] = useState(false);
 
   const detailsSheetRef = useRef<SheetRef>(null);
   const [copied, setCopied] = useState(false);
@@ -37,22 +39,31 @@ const RestaurantDetails = () => {
   };
 
   const restaurants = useSelector((state: RootState) => state.restaurants.restaurant);
-  const selectedRestaurant = useSelector((state: RootState) => state.restaurants.selectedRestaurant);
+  const selectedRestaurant = useSelector((state: RootState) => state.restaurants.selectedRestaurant.data);
   const isRestaurantDetailsOpen = useSelector((state: RootState) => state.restaurants.isRestaurantDetailsOpen);
   const snapPositionDetails = useSelector((state: RootState) => state.restaurants.snapPositionDetails);
 
   useEffect(() => {
+    if (hasExecuted) return;
     // Check if the 'restaurant' parameter exists in the URL and if the restaurant list is available
     if (restaurantSlug && restaurants.length > 0) {
-      const encodedSlug = restaurantSlug.replace(/ /g, "+");
+      const encodedSlug = encodeURIComponent(restaurantSlug.trim()).replace(/%20/g, "+");
       // Search for a restaurant by name or slug
       const selected = restaurants.find((res) => res.slug === encodedSlug || res.name === encodedSlug);
 
       if (selected) {
-        dispatch(setSelectedRestaurant(selected));
+        dispatch(
+          setSelectedRestaurant({
+            data: selected,
+            isFromUrl: true,
+          })
+        );
       }
+
+      setHasExecuted(true);
     }
-  }, [restaurantSlug, dispatch, restaurants]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurantSlug]);
 
   useEffect(() => {
     if (selectedRestaurant) {
@@ -140,7 +151,7 @@ const RestaurantDetails = () => {
                   )}
                 </div>
               </div>
-              <Sheet.Scroller>
+              <div className={`flex flex-col h-full ${snapPositionDetails === 0 ? "overflow-y-auto" : "overflow-hidden"}`}>
                 <div className="flex flex-col space-y-4">
                   <div className="flex flex-col px-4 space-y-4">
                     <div className="bg-lightGray flex items-center justify-center text-gray-500 font-bold text-xl overflow-hidden relative rounded-xl " style={{ aspectRatio: "16 / 9" }}>
@@ -166,7 +177,7 @@ const RestaurantDetails = () => {
                     </Link>
                   </div>
                 </div>
-              </Sheet.Scroller>
+              </div>
             </Sheet.Content>
           ) : null}
         </Sheet.Container>

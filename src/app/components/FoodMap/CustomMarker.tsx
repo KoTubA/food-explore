@@ -75,7 +75,7 @@ const CustomMarker: React.FC<CustomMarkerProps> = ({ restaurant, onClick }) => {
     }
   };
 
-  const isSelected = selectedRestaurant?.id === restaurant.id;
+  const isSelected = selectedRestaurant.data?.id === restaurant.id;
 
   return (
     <Marker longitude={restaurant.lng} latitude={restaurant.lat} onClick={onClick} style={isSelected ? { zIndex: 10 } : { zIndex: 1 }}>

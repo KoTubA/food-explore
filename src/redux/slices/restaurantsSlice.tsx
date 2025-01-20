@@ -19,7 +19,10 @@ interface RestaurantState {
   restaurant: Restaurant[];
   filteredRestaurants: Restaurant[];
   visibleRestaurants: Restaurant[];
-  selectedRestaurant: Restaurant | null;
+  selectedRestaurant: {
+    data: Restaurant | null;
+    isFromUrl: boolean;
+  };
   isRestaurantDetailsOpen: boolean;
   isFilterModalOpen: boolean;
   snapPosition: number;
@@ -39,7 +42,10 @@ const initialState: RestaurantState = {
   restaurant: [],
   filteredRestaurants: [],
   visibleRestaurants: [],
-  selectedRestaurant: null,
+  selectedRestaurant: {
+    data: null,
+    isFromUrl: false,
+  },
   isRestaurantDetailsOpen: false,
   isFilterModalOpen: false,
   snapPosition: 1,
@@ -134,13 +140,16 @@ const restaurantsSlice = createSlice({
     setVisibleRestaurants: (state, action: PayloadAction<Restaurant[]>) => {
       state.visibleRestaurants = action.payload;
     },
-    setSelectedRestaurant: (state, action: PayloadAction<Restaurant>) => {
+    setSelectedRestaurant: (state, action: PayloadAction<{ data: Restaurant; isFromUrl: boolean }>) => {
       state.selectedRestaurant = action.payload;
       state.isRestaurantDetailsOpen = true;
     },
     closeRestaurantDetails: (state) => {
       state.isRestaurantDetailsOpen = false;
-      state.selectedRestaurant = null;
+      state.selectedRestaurant = {
+        data: null,
+        isFromUrl: false,
+      };
     },
     setFilterModalOpen: (state, action: PayloadAction<boolean>) => {
       state.isFilterModalOpen = action.payload;

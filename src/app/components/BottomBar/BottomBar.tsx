@@ -90,7 +90,12 @@ const BottomBar = () => {
   };
 
   const handleSelectRestaurant = (restaurant: Restaurant) => {
-    dispatch(setSelectedRestaurant(restaurant));
+    dispatch(
+      setSelectedRestaurant({
+        data: restaurant,
+        isFromUrl: false,
+      })
+    );
   };
 
   const handleSnap = (index: number) => {
@@ -215,7 +220,7 @@ const BottomBar = () => {
             )}
 
             {!loading && !error && (
-              <Sheet.Scroller className="flex flex-col">
+              <div className={`flex flex-col h-full ${snapPosition === 0 ? "overflow-y-auto" : "overflow-hidden"}`}>
                 {visibleRestaurants.length > 0 ? (
                   visibleRestaurants.map((restaurant) => (
                     <div key={restaurant.id} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(restaurant)}>
@@ -276,7 +281,7 @@ const BottomBar = () => {
                     </div>
                   </div>
                 )}
-              </Sheet.Scroller>
+              </div>
             )}
           </Sheet.Content>
         </Sheet.Container>
