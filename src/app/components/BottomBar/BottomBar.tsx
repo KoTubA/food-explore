@@ -128,7 +128,7 @@ const BottomBar = () => {
                     className="bg-transparent flex-grow pl-2 pr-4 text-sm text-mediumGray font-medium outline-none"
                     value={searchQuery}
                     onChange={(e) => handleSearch(e.target.value)}
-                    onFocus={() => {
+                    onClick={() => {
                       snapToList(0);
                       setInputFocused(true);
                     }}
