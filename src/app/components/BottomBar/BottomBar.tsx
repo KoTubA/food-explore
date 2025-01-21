@@ -24,6 +24,7 @@ interface RowProps {
 }
 
 const snapPoints = [0.95, 0.5, 86];
+const listHeight = window.innerHeight * 0.95 - 86;
 
 const BottomBar = () => {
   const dispatch = useDispatch();
@@ -141,7 +142,8 @@ const BottomBar = () => {
   const rowHeights = useRef<{ [key: number]: number }>({});
 
   const getItemSize = (index: number) => {
-    return rowHeights.current[index] + 15 || 130;
+    console.log(rowHeights.current[index]);
+    return rowHeights.current[index] || 300;
   };
 
   const setRowHeight = useCallback((index: number, size: number) => {
@@ -322,7 +324,7 @@ const BottomBar = () => {
               <>
                 {visibleRestaurants.length > 0 ? (
                   <List
-                    height={100}
+                    height={listHeight}
                     itemCount={visibleRestaurants.length}
                     itemSize={getItemSize}
                     width={"100%"}
