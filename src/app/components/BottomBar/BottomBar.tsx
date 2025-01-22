@@ -25,6 +25,10 @@ interface ScrollParams {
   scrollTop: number;
 }
 
+interface GridWithContainer {
+  _scrollingContainer?: HTMLDivElement;
+}
+
 const BottomBar = () => {
   const dispatch = useDispatch();
   const searchQuery = useSelector((state: RootState) => state.restaurants.searchQuery);
@@ -69,10 +73,9 @@ const BottomBar = () => {
 
   const handleScroll = (params: ScrollParams) => {
     const scrollTop = params.scrollTop;
-
     if (scrollTop === 0 && snapPosition === 0) {
       setDisableDrag(false);
-    } else {
+    } else if (snapPosition === 0) {
       setDisableDrag(true);
     }
   };
@@ -131,8 +134,14 @@ const BottomBar = () => {
       dispatch(setSnapPosition(index));
     }
 
+    const grid = listRef.current?.Grid as GridWithContainer;
+
+    const scrollTop = grid?._scrollingContainer?.scrollTop || 0;
+
     if (index !== 0) {
       setDisableDrag(false);
+    } else if (index === 0 && scrollTop != 0) {
+      setDisableDrag(true);
     }
   };
 
