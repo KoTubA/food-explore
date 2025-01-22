@@ -98,7 +98,7 @@ const FilterModal = () => {
     <>
       <Sheet isOpen={isFilterModalOpen} onClose={closeModal}>
         <Sheet.Container>
-          <Sheet.Content>
+          <Sheet.Content className="relative">
             <div className="w-full flex items-center justify-center px-4 py-6 relative">
               <IoChevronBack onClick={closeModal} className="absolute left-4" />
               <h2 className="font-bold">Znajdź rekomendacje</h2>
@@ -157,7 +157,7 @@ const FilterModal = () => {
             </Sheet.Scroller>
 
             {/* Zamknij modal */}
-            <div className="flex items-center justify-center gap-3 fixed bottom-0 left-0 right-0 w-full p-4 z-10 bg-white">
+            <div className="flex items-center justify-center gap-3 absolute bottom-0 left-0 right-0 w-full p-4 z-10 bg-white">
               <button
                 onClick={() => {
                   dispatch(resetFilters());

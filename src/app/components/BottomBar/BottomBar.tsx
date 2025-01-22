@@ -1,30 +1,29 @@
 "use client";
 
-import Image from "next/image";
 import { Sheet, type SheetRef } from "react-modal-sheet";
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef } from "react";
 import { IoSearch, IoClose } from "react-icons/io5";
 import { FiFilter } from "react-icons/fi";
-import { FaSeedling, FaLeaf } from "react-icons/fa";
-import { LuWheatOff } from "react-icons/lu";
 import { RootState } from "@/src/redux/store";
-import { Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { setSelectedRestaurant, setSnapPosition, setFilterModalOpen, setSearchQuery, removeActiveFilter } from "@/src/redux/slices/restaurantsSlice";
+import { setSnapPosition, setFilterModalOpen, setSearchQuery, removeActiveFilter } from "@/src/redux/slices/restaurantsSlice";
 import RestaurantDetails from "@/src/app/components/RestaurantDetails/RestaurantDetails";
 import FilterModal from "@/src/app/components/FilterModal/FilterModal";
 import { IoSearchOutline } from "react-icons/io5";
+import { AutoSizer, List, ListRowRenderer, CellMeasurer, CellMeasurerCache } from "react-virtualized";
+import { FaSeedling, FaLeaf } from "react-icons/fa";
+import { LuWheatOff } from "react-icons/lu";
+import { Restaurant } from "@/src/redux/slices/restaurantsSlice";
+import { setSelectedRestaurant } from "@/src/redux/slices/restaurantsSlice";
 import { CiImageOff } from "react-icons/ci";
-import { VariableSizeList as List } from "react-window";
-
-interface RowProps {
-  index: number;
-  data: Restaurant;
-  setRowHeight: (index: number, size: number) => void;
-}
 
 const snapPoints = [0.95, 0.5, 86];
-const listHeight = window.innerHeight * 0.95 - 86;
+
+interface ScrollParams {
+  clientHeight: number;
+  scrollHeight: number;
+  scrollTop: number;
+}
 
 const BottomBar = () => {
   const dispatch = useDispatch();
@@ -40,6 +39,13 @@ const BottomBar = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [disableDrag, setDisableDrag] = useState(false);
+  const listRef = useRef<List>(null);
+  const cache = useRef(
+    new CellMeasurerCache({
+      fixedWidth: true,
+      defaultHeight: 300,
+    })
+  );
 
   const listSheetRef = useRef<SheetRef>(null);
   const snapToList = (i: number) => {
@@ -47,7 +53,7 @@ const BottomBar = () => {
     listSheetRef.current?.snapTo(i);
   };
 
-  // Obliczenie liczby aktywnych filtrów
+  // Calculating the number of active filters
   const activeFilterCount = Object.entries(activeFilters).reduce((count, [, value]) => {
     if (Array.isArray(value)) {
       return count + (value.length > 0 ? 1 : 0);
@@ -56,29 +62,31 @@ const BottomBar = () => {
     }
   }, 0);
 
-  // Szczegóły wybranych filtrów
+  // Details of selected filters
   const selectedCategories = activeFilters.categories?.length || 0;
   const selectedPrices = activeFilters.price?.length || 0;
   const dietStyleSelected = !!activeFilters.dietStyle;
 
-  const handleScroll = useCallback(
-    (props: { scrollOffset: number }) => {
-      const scrollTop = props.scrollOffset; // scrollOffset to liczba reprezentująca pozycję przewijania
+  const handleScroll = (params: ScrollParams) => {
+    const scrollTop = params.scrollTop;
 
-      // Jeśli snapPosition jest różne od 0, disableDrag ustawiamy na false
-      if (snapPosition !== 0) {
-        setDisableDrag(false);
-      } else if (scrollTop === 0 && snapPosition === 0) {
-        setDisableDrag(false); // Ustawiamy disableDrag na false, gdy oba warunki są spełnione
-      } else {
-        setDisableDrag(true); // W przeciwnym razie ustawiamy disableDrag na true
-      }
-    },
-    [snapPosition]
-  );
+    if (scrollTop === 0 && snapPosition === 0) {
+      setDisableDrag(false);
+    } else {
+      setDisableDrag(true);
+    }
+  };
 
   const handleSearch = (query: string) => {
     dispatch(setSearchQuery(query));
+
+    if (listRef.current) {
+      const firstRowOffset = listRef.current.getOffsetForRow({ index: 0 });
+
+      if (firstRowOffset !== 0) {
+        listRef.current.scrollToRow(0);
+      }
+    }
   };
 
   // Handles form submission
@@ -93,12 +101,12 @@ const BottomBar = () => {
   const handleClearSearch = () => {
     dispatch(setSearchQuery(""));
 
-    // Focus the input after clearing
-    if (snapPosition === 0 && inputRef.current) {
-      inputRef.current.focus();
-    } else {
-      setInputFocused(false);
-    }
+    // // Focus the input after clearing
+    // if (snapPosition === 0 && inputRef.current) {
+    //   inputRef.current.focus();
+    // } else {
+    //   setInputFocused(false);
+    // }
   };
 
   // Handle canceling the search
@@ -115,6 +123,23 @@ const BottomBar = () => {
     setTimeout(() => setInputFocused(false), 100);
   };
 
+  const handleSnap = (index: number) => {
+    // When restaurant details are opened (isRestaurantDetailsOpen === true),
+    // the sheet closes, triggering onSnap with the highest snap value.
+    // Avoid saving this value to preserve the previous snap position.
+    if (!isRestaurantDetailsOpen) {
+      dispatch(setSnapPosition(index));
+    }
+
+    if (index !== 0) {
+      setDisableDrag(false);
+    }
+  };
+
+  const openFilterModal = () => {
+    dispatch(setFilterModalOpen(true));
+  };
+
   const handleSelectRestaurant = (restaurant: Restaurant) => {
     dispatch(
       setSelectedRestaurant({
@@ -124,93 +149,62 @@ const BottomBar = () => {
     );
   };
 
-  const handleSnap = (index: number) => {
-    if (snapPosition === index) return;
-    // When restaurant details are opened (isRestaurantDetailsOpen === true),
-    // the sheet closes, triggering onSnap with the highest snap value.
-    // Avoid saving this value to preserve the previous snap position.
-    if (!isRestaurantDetailsOpen) {
-      dispatch(setSnapPosition(index));
-    }
+  const handleResize = () => {
+    // Clear cache for all rows when the width changes.
+    cache.current.clearAll();
   };
 
-  const openFilterModal = () => {
-    dispatch(setFilterModalOpen(true));
-  };
-
-  const listRef = useRef<List>(null);
-  const rowHeights = useRef<{ [key: number]: number }>({});
-
-  const getItemSize = (index: number) => {
-    console.log(rowHeights.current[index]);
-    return rowHeights.current[index] || 300;
-  };
-
-  const setRowHeight = useCallback((index: number, size: number) => {
-    rowHeights.current = { ...rowHeights.current, [index]: size };
-    listRef.current?.resetAfterIndex(index);
-  }, []);
-
-  const Row: React.FC<RowProps> = ({ index, data, setRowHeight }) => {
-    const rowRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-      if (rowRef.current) {
-        setRowHeight(index, rowRef.current.clientHeight);
-      }
-    }, [index, setRowHeight]);
-
-    return (
-      <div ref={rowRef} key={data.id} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer" onClick={() => handleSelectRestaurant(data)}>
+  const Row: ListRowRenderer = ({ index, style, key, parent }) => (
+    <CellMeasurer key={key} cache={cache.current} parent={parent} columnIndex={0} rowIndex={index}>
+      <div style={style} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer animate-fadeIn" onClick={() => handleSelectRestaurant(visibleRestaurants[index])}>
         <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
-          {data.image ? <Image src={data.image.url} alt={data.name} className="object-cover" fill key={data.image?.url} /> : <CiImageOff size={"2rem"} />}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {visibleRestaurants[index].image ? <img src={visibleRestaurants[index].image.url} alt={visibleRestaurants[index].name} className="object-cover animate-fadeIn w-full h-auto" /> : <CiImageOff size={"2rem"} />}
         </div>
-        <div className="flex flex-col space-y-1object-cover">
-          <h4 className="text-xl font-light">{data.name}</h4>
+        <div className="flex flex-col space-y-1">
+          <h4 className="text-xl font-light">{visibleRestaurants[index].name}</h4>
           <div className="text-sm text-mediumGray flex items-center space-x-2">
-            {data.categories && (
+            {visibleRestaurants[index].categories && (
               <span className="flex items-center">
-                <span>{data.categories}</span>
+                <span>{visibleRestaurants[index].categories}</span>
               </span>
             )}
-            {data.price && (
+            {visibleRestaurants[index].price && (
               <span className="flex items-center space-x-2">
                 <span>•</span>
-                <span>{data.price}</span>
+                <span>{visibleRestaurants[index].price}</span>
               </span>
             )}
-            {data.dietaryStyles && data.dietaryStyles.length > 0 && (
-              <>
-                {data.dietaryStyles.map((category) => {
-                  let icon;
-                  switch (category) {
-                    case "Wegetariańska":
-                      icon = <FaLeaf className="text-primaryGreen" />;
-                      break;
-                    case "Wegańska":
-                      icon = <FaSeedling className="text-primaryGreen" />;
-                      break;
-                    case "Bezglutenowa":
-                      icon = <LuWheatOff className="text-primaryRed" />;
-                      break;
-                    default:
-                      icon = null;
-                  }
+            {visibleRestaurants[index].dietaryStyles &&
+              visibleRestaurants[index].dietaryStyles.length > 0 &&
+              visibleRestaurants[index].dietaryStyles.map((category) => {
+                let icon;
+                switch (category) {
+                  case "Wegetariańska":
+                    icon = <FaLeaf className="text-primaryGreen" />;
+                    break;
+                  case "Wegańska":
+                    icon = <FaSeedling className="text-primaryGreen" />;
+                    break;
+                  case "Bezglutenowa":
+                    icon = <LuWheatOff className="text-primaryRed" />;
+                    break;
+                  default:
+                    icon = null;
+                }
 
-                  return (
-                    <span key={category} className="flex items-center space-x-2">
-                      <span>•</span>
-                      {icon}
-                    </span>
-                  );
-                })}
-              </>
-            )}
+                return (
+                  <span key={category} className="flex items-center space-x-2">
+                    <span>•</span>
+                    {icon}
+                  </span>
+                );
+              })}
           </div>
         </div>
       </div>
-    );
-  };
+    </CellMeasurer>
+  );
 
   return (
     <>
@@ -323,29 +317,27 @@ const BottomBar = () => {
             {!loading && !error && (
               <>
                 {visibleRestaurants.length > 0 ? (
-                  <List
-                    height={listHeight}
-                    itemCount={visibleRestaurants.length}
-                    itemSize={getItemSize}
-                    width={"100%"}
-                    ref={listRef}
-                    itemData={visibleRestaurants}
-                    style={{
-                      overflowX: "hidden",
-                      overflowY: snapPosition === 0 ? "auto" : "hidden",
-                      display: "flex",
-                      flexGrow: 1,
-                      height: "100%",
-                    }}
-                    className="list-container"
-                    onScroll={handleScroll}
-                  >
-                    {({ data, index, style }) => (
-                      <div style={style}>
-                        <Row data={data[index]} index={index} setRowHeight={setRowHeight} />
-                      </div>
-                    )}
-                  </List>
+                  <div className="w-full h-full flex flex-auto">
+                    <AutoSizer onResize={handleResize}>
+                      {({ width, height }) => (
+                        <List
+                          ref={listRef}
+                          height={height}
+                          width={width}
+                          rowCount={visibleRestaurants.length}
+                          rowHeight={cache.current.rowHeight}
+                          className="list-container"
+                          deferredMeasurementCache={cache.current}
+                          rowRenderer={Row}
+                          onScroll={handleScroll}
+                          style={{
+                            overflowX: "hidden",
+                            overflowY: snapPosition === 0 ? "auto" : "hidden",
+                          }}
+                        />
+                      )}
+                    </AutoSizer>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center py-8 gap-4">
                     <IoSearchOutline className="text-mediumGray" size={"3rem"} />
