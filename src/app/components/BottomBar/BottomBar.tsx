@@ -1,7 +1,7 @@
 "use client";
 
 import { Sheet, type SheetRef } from "react-modal-sheet";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { IoSearch, IoClose } from "react-icons/io5";
 import { FiFilter } from "react-icons/fi";
 import { RootState } from "@/src/redux/store";
@@ -82,15 +82,15 @@ const BottomBar = () => {
 
   const handleSearch = (query: string) => {
     dispatch(setSearchQuery(query));
-
-    if (listRef.current) {
-      const firstRowOffset = listRef.current.getOffsetForRow({ index: 0 });
-
-      if (firstRowOffset !== 0) {
-        listRef.current.scrollToRow(0);
-      }
-    }
   };
+
+  useEffect(() => {
+    if (listRef.current) {
+      setTimeout(() => {
+        listRef.current?.scrollToRow(0);
+      }, 100);
+    }
+  }, [visibleRestaurants]);
 
   // Handles form submission
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -105,11 +105,11 @@ const BottomBar = () => {
     dispatch(setSearchQuery(""));
 
     // // Focus the input after clearing
-    // if (snapPosition === 0 && inputRef.current) {
-    //   inputRef.current.focus();
-    // } else {
-    //   setInputFocused(false);
-    // }
+    if (snapPosition === 0 && inputRef.current) {
+      inputRef.current.focus();
+    } else {
+      setInputFocused(false);
+    }
   };
 
   // Handle canceling the search
@@ -158,9 +158,19 @@ const BottomBar = () => {
     );
   };
 
-  const handleResize = () => {
-    // Clear cache for all rows when the width changes.
-    cache.current.clearAll();
+  type ResizeParams = {
+    width: number;
+    height: number;
+  };
+
+  const prevWidth = useRef<number | null>(null);
+
+  const handleResize = ({ width }: ResizeParams) => {
+    if (prevWidth === null || prevWidth.current !== width) {
+      // Clear cache if the width has changed
+      cache.current.clearAll();
+      prevWidth.current = width;
+    }
   };
 
   const Row: ListRowRenderer = ({ index, style, key, parent }) => (
