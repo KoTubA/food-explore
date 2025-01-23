@@ -136,7 +136,7 @@ const FoodMap = () => {
       const shouldCenter = markerPosition.y < thresholdHeightLow || markerPosition.y > thresholdHeightTop || markerPosition.x < thresholdWidthLow || markerPosition.x > thresholdWidthHigh;
 
       // Determine the zoom level based on whether the restaurant is from the URL or not
-      const zoomLevel = selectedRestaurant.isFromUrl ? 14 : mapInstance.getZoom();
+      const zoomLevel = selectedRestaurant.isFromUrl ? 15 : mapInstance.getZoom();
 
       // If the marker is outside the screen or the restaurant is from the URL, perform centering and zoom
       if (shouldCenter || selectedRestaurant.isFromUrl) {
@@ -150,7 +150,8 @@ const FoodMap = () => {
     }
   }, [selectedRestaurant, mapInstance]);
 
-  const updateFilteredRestaurants = (useCustomHeight = false) => {
+  const updateFilteredRestaurants = (useCustomHeight: boolean) => {
+    console.log(useCustomHeight);
     if (!mapInstance) return;
 
     const bounds = mapInstance.getBounds();
@@ -176,13 +177,13 @@ const FoodMap = () => {
 
   useEffect(() => {
     if (mapInstance) {
-      mapInstance.on("moveend", updateFilteredRestaurants); // Trigger updateFilteredRestaurants only on moveend
+      mapInstance.on("moveend", () => updateFilteredRestaurants(false)); // Trigger updateFilteredRestaurants only on moveend
       updateFilteredRestaurants(true); // Initial filtering on map load
     }
 
     return () => {
       if (mapInstance) {
-        mapInstance.off("moveend", updateFilteredRestaurants);
+        mapInstance.off("moveend", () => updateFilteredRestaurants(false));
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

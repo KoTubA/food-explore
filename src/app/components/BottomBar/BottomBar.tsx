@@ -176,7 +176,7 @@ const BottomBar = () => {
   const Row: ListRowRenderer = ({ index, style, key, parent }) => (
     <CellMeasurer key={key} cache={cache.current} parent={parent} columnIndex={0} rowIndex={index}>
       <div style={style} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer animate-fadeIn" onClick={() => handleSelectRestaurant(visibleRestaurants[index])}>
-        <div className="bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
+        <div className="bg-gray-200 flex flex-shrink-0 items-center justify-center text-gray-500 font-bold text-xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {visibleRestaurants[index].image ? <img src={visibleRestaurants[index].image.url} alt={visibleRestaurants[index].name} className="object-cover animate-fadeIn w-full h-auto" /> : <CiImageOff size={"2rem"} />}
         </div>
