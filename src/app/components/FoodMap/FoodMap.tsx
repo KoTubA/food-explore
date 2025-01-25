@@ -151,7 +151,6 @@ const FoodMap = () => {
   }, [selectedRestaurant, mapInstance]);
 
   const updateFilteredRestaurants = (useCustomHeight: boolean) => {
-    console.log(useCustomHeight);
     if (!mapInstance) return;
 
     const bounds = mapInstance.getBounds();

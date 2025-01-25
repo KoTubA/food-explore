@@ -87,7 +87,8 @@ const BottomBar = () => {
   useEffect(() => {
     if (listRef.current) {
       setTimeout(() => {
-        listRef.current?.scrollToRow(0);
+        listRef.current?.scrollToPosition(0);
+        cache.current.clearAll();
       }, 100);
     }
   }, [visibleRestaurants]);
