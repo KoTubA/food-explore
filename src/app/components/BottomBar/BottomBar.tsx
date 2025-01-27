@@ -41,6 +41,8 @@ const BottomBar = () => {
 
   const [inputFocused, setInputFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDragged = useRef(false);
 
   const [disableDrag, setDisableDrag] = useState(false);
   const listRef = useRef<List>(null);
@@ -118,6 +120,37 @@ const BottomBar = () => {
     dispatch(setSearchQuery("")); // Reset search query
     snapToList(1); // Snap to position 1
     setInputFocused(false);
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Jeżeli przesunięcie było większe niż 10px, zablokuj focusowanie
+    if (hasDragged.current) {
+      e.target.blur();
+      return;
+    } else {
+      snapToList(0);
+      setInputFocused(true);
+    }
+  };
+
+  // Handles touch start event
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    hasDragged.current = false;
+  };
+
+  // Handles touch move event
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.touches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+
+    // Set `hasDragged` to true if the movement exceeds the threshold
+    if (deltaX > 10 || deltaY > 10) {
+      hasDragged.current = true;
+    }
   };
 
   // Function handling onBlur
@@ -236,22 +269,7 @@ const BottomBar = () => {
               <div className="relative flex items-center flex-grow bg-veryLightGray rounded-lg px-4 py-2 border-lightGray border">
                 <form className="w-full flex" onSubmit={handleFormSubmit} action="">
                   <IoSearch className="text-mediumGray" />
-                  <input
-                    ref={inputRef}
-                    type="search"
-                    placeholder="Wyszukaj tutaj"
-                    className="bg-transparent flex-grow pl-2 pr-4 text-sm text-mediumGray font-medium outline-none"
-                    value={searchQuery}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    onFocus={() => {
-                      snapToList(0);
-                      setInputFocused(true);
-                    }}
-                    onBlur={handleBlur}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    spellCheck="false"
-                  />
+                  <input ref={inputRef} type="search" placeholder="Wyszukaj tutaj" className="bg-transparent flex-grow pl-2 pr-4 text-sm text-mediumGray font-medium outline-none" value={searchQuery} onChange={(e) => handleSearch(e.target.value)} onFocus={handleFocus} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onBlur={handleBlur} autoComplete="off" autoCorrect="off" spellCheck="false" />
                 </form>
                 {/* Button to clear the search input */}
                 {searchQuery && (
