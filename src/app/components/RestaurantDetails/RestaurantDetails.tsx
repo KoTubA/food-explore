@@ -72,6 +72,12 @@ const RestaurantDetails = () => {
   }, []);
 
   useEffect(() => {
+    if (isLargeScreen) {
+      dispatch(setSnapPositionDetails(0));
+    }
+  }, [isLargeScreen, dispatch]);
+
+  useEffect(() => {
     if (selectedRestaurant) {
       router.push(`?restaurant=${selectedRestaurant.slug}`);
 
@@ -91,7 +97,7 @@ const RestaurantDetails = () => {
     <>
       <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onSnap={handleSnap} onClose={() => {}} snapPoints={snapPoints} initialSnap={isLargeScreen ? 0 : snapPositionDetails} {...(isLargeScreen ? { disableDrag: true } : {})}>
         <Sheet.Container>
-          {!isLargeScreen && <Sheet.Header />}
+          <Sheet.Header className={`${!isLargeScreen ? "block" : "hidden"}`} />
           {selectedRestaurant ? (
             <Sheet.Content style={{ paddingBottom: detailsSheetRef.current?.y }} key={selectedRestaurant.id}>
               <div className="flex flex-col px-4 pb-4 md:pt-4 space-y-1">
@@ -157,7 +163,7 @@ const RestaurantDetails = () => {
                   )}
                 </div>
               </div>
-              <div className={`flex flex-col h-full ${snapPositionDetails === 0 ? "overflow-y-auto" : "overflow-hidden"}`}>
+              <div className={`flex flex-col h-full ${isLargeScreen ? "overflow-y-auto" : snapPositionDetails === 0 ? "overflow-y-auto" : "overflow-hidden"}`}>
                 <div className="flex flex-col space-y-4">
                   <div className="flex flex-col px-4 space-y-4">
                     <div className="bg-lightGray flex items-center justify-center text-gray-500 font-bold text-xl overflow-hidden relative rounded-xl " style={{ aspectRatio: "16 / 9" }}>
@@ -188,7 +194,7 @@ const RestaurantDetails = () => {
           ) : null}
         </Sheet.Container>
       </Sheet>
-      {snapPositionDetails === 0 && !isRestaurantDetailsOpen && <div className="fixed inset-0 w-full h-full bg-black/20 z-10 md:hidden"></div>}
+      {snapPositionDetails === 0 && isRestaurantDetailsOpen && <div className="fixed inset-0 w-full h-full bg-black/20 z-10 md:hidden"></div>}
     </>
   );
 };

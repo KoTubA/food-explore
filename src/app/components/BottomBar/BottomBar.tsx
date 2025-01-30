@@ -91,6 +91,12 @@ const BottomBar = () => {
   };
 
   useEffect(() => {
+    if (isLargeScreen) {
+      dispatch(setSnapPosition(0));
+    }
+  }, [isLargeScreen, dispatch]);
+
+  useEffect(() => {
     if (listRef.current) {
       setTimeout(() => {
         listRef.current?.scrollToPosition(0);
@@ -265,10 +271,10 @@ const BottomBar = () => {
 
   return (
     <>
-      <Sheet ref={listSheetRef} isOpen={!isRestaurantDetailsOpen} onClose={() => {}} snapPoints={snapPoints} initialSnap={isLargeScreen ? 0 : snapPosition} onSnap={handleSnap} {...(isLargeScreen ? { disableDrag: true } : {})}>
+      <Sheet ref={listSheetRef} isOpen={isLargeScreen ? true : !isRestaurantDetailsOpen} onClose={() => {}} snapPoints={snapPoints} initialSnap={isLargeScreen ? 0 : snapPosition} onSnap={handleSnap} {...(isLargeScreen ? { disableDrag: true } : {})}>
         <Sheet.Container>
-          {!isLargeScreen && <Sheet.Header />}
-          <Sheet.Content style={{ paddingBottom: listSheetRef.current?.y }} disableDrag={disableDrag}>
+          <Sheet.Header className={`${!isLargeScreen ? "block" : "hidden"}`} />
+          <Sheet.Content style={{ paddingBottom: listSheetRef.current?.y }} disableDrag={isLargeScreen ? true : disableDrag}>
             <div className="flex items-center space-x-3 px-4 pb-4 md:pt-4">
               <div className="relative flex items-center flex-grow bg-veryLightGray rounded-lg px-4 py-2 border-lightGray border">
                 <form className="w-full flex" onSubmit={handleFormSubmit} action="">
@@ -374,7 +380,7 @@ const BottomBar = () => {
                           onScroll={handleScroll}
                           style={{
                             overflowX: "hidden",
-                            overflowY: snapPosition === 0 ? "auto" : "hidden",
+                            overflowY: isLargeScreen ? "auto" : snapPosition === 0 ? "auto" : "hidden",
                           }}
                         />
                       )}
