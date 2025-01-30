@@ -14,8 +14,14 @@ import { FaLocationDot, FaEarthAmericas, FaMoneyBills } from "react-icons/fa6";
 import { LuWheatOff } from "react-icons/lu";
 import { FiCheck } from "react-icons/fi";
 import { CiImageOff } from "react-icons/ci";
+import useWindowSize from "@/src/hooks/useWindowSize";
 
 const RestaurantDetails = () => {
+  const windowSize = useWindowSize();
+  const isLargeScreen = windowSize.width >= 768;
+
+  const snapPoints = isLargeScreen ? [1] : [0.95, 0.5, 86];
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -83,12 +89,12 @@ const RestaurantDetails = () => {
 
   return (
     <>
-      <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onSnap={handleSnap} onClose={() => {}} snapPoints={[0.95, 0.5, 86]} initialSnap={snapPositionDetails}>
+      <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onSnap={handleSnap} onClose={() => {}} snapPoints={snapPoints} initialSnap={isLargeScreen ? 0 : snapPositionDetails} {...(isLargeScreen ? { disableDrag: true } : {})}>
         <Sheet.Container>
-          <Sheet.Header />
+          {!isLargeScreen && <Sheet.Header />}
           {selectedRestaurant ? (
             <Sheet.Content style={{ paddingBottom: detailsSheetRef.current?.y }} key={selectedRestaurant.id}>
-              <div className="flex flex-col px-4 pb-4 space-y-1">
+              <div className="flex flex-col px-4 pb-4 md:pt-4 space-y-1">
                 <div className="flex items-start justify-between">
                   <h2 className="text-xl font-medium animate-fadeIn">{selectedRestaurant.name}</h2>
                   <div className="flex space-x-1">
@@ -182,7 +188,7 @@ const RestaurantDetails = () => {
           ) : null}
         </Sheet.Container>
       </Sheet>
-      {snapPositionDetails === 0 && <div className="fixed inset-0 w-full h-full bg-black/20 z-10"></div>}
+      {snapPositionDetails === 0 && !isRestaurantDetailsOpen && <div className="fixed inset-0 w-full h-full bg-black/20 z-10 md:hidden"></div>}
     </>
   );
 };

@@ -6,6 +6,7 @@ import { setRestaurant, Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { RootState } from "@/src/redux/store";
 import { setSelectedRestaurant, setFilteredRestaurants, setVisibleRestaurants, setLoading, setError, setSelectedLocation } from "@/src/redux/slices/restaurantsSlice";
 import CustomMarker from "@/src/app/components/FoodMap/CustomMarker";
+import useWindowSize from "@/src/hooks/useWindowSize";
 
 const spaceId = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID;
 const accessToken = process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN;
@@ -28,6 +29,9 @@ const FoodMap = () => {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
+  const windowSize = useWindowSize();
+  const isLargeScreen = windowSize.width >= 768;
+
   const dispatch = useDispatch();
   const filteredRestaurants = useSelector((state: RootState) => state.restaurants.filteredRestaurants);
   const visibleRestaurants = useSelector((state: RootState) => state.restaurants.visibleRestaurants);
@@ -42,6 +46,7 @@ const FoodMap = () => {
   const snapPositionRef = useRef(snapPosition);
   const snapPositionDetailsRef = useRef(snapPositionDetails);
   const isRestaurantDetailsOpenRef = useRef(isRestaurantDetailsOpen);
+  const isLargeScreenRef = useRef(isLargeScreen);
 
   useEffect(() => {
     filteredRestaurantsRef.current = filteredRestaurants;
@@ -58,6 +63,10 @@ const FoodMap = () => {
   useEffect(() => {
     isRestaurantDetailsOpenRef.current = isRestaurantDetailsOpen;
   }, [isRestaurantDetailsOpen]);
+
+  useEffect(() => {
+    isLargeScreenRef.current = isLargeScreen;
+  }, [isLargeScreen]);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -126,11 +135,13 @@ const FoodMap = () => {
       const screenHeight = window.innerHeight;
       const screenWidth = window.innerWidth;
 
-      const thresholdHeightLow = screenHeight * 0.2;
-      const thresholdHeightTop = screenHeight * 0.4;
+      // Set vertical thresholds for large screens between 25% and 75% of the screen height
+      const thresholdHeightLow = isLargeScreen ? screenHeight * 0.25 : screenHeight * 0.2;
+      const thresholdHeightTop = isLargeScreen ? screenHeight * 0.75 : screenHeight * 0.4;
 
-      const thresholdWidthLow = screenWidth * 0.2;
-      const thresholdWidthHigh = screenWidth * 0.8;
+      // For large screens, adjust width thresholds to account for the 420px hidden area
+      const thresholdWidthLow = isLargeScreen ? 420 + (screenWidth - 420) * 0.2 : screenWidth * 0.2;
+      const thresholdWidthHigh = isLargeScreen ? 420 + (screenWidth - 420) * 0.8 : screenWidth * 0.8;
 
       // Check if the marker is outside the visible area of the screen
       const shouldCenter = markerPosition.y < thresholdHeightLow || markerPosition.y > thresholdHeightTop || markerPosition.x < thresholdWidthLow || markerPosition.x > thresholdWidthHigh;
@@ -138,40 +149,81 @@ const FoodMap = () => {
       // Determine the zoom level based on whether the restaurant is from the URL or not
       const zoomLevel = selectedRestaurant.isFromUrl ? 15 : mapInstance.getZoom();
 
+      // Determine the horizontal offset for large screens (420px hidden on the left)
+      const offsetX = isLargeScreen ? 420 / 2 : 0;
+
+      // For large screens, keep the marker centered vertically (no Y offset)
+      const offsetY = isLargeScreen ? 0 : -screenHeight * 0.25;
+
       // If the marker is outside the screen or the restaurant is from the URL, perform centering and zoom
       if (shouldCenter || selectedRestaurant.isFromUrl) {
         mapInstance.easeTo({
           center: [selectedRestaurant.data.lng, selectedRestaurant.data.lat],
           zoom: zoomLevel,
-          offset: [0, -screenHeight * 0.25],
+          offset: [offsetX, offsetY],
           essential: true,
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRestaurant, mapInstance]);
 
+  // const updateFilteredRestaurants = (useCustomHeight: boolean) => {
+  //   if (!mapInstance) return;
+
+  //   const bounds = mapInstance.getBounds();
+  //   const screenHeight = window.innerHeight;
+
+  //   // Use the correct snapPosition based on whether restaurant details are open
+  //   const snapPositionToUse = isRestaurantDetailsOpenRef.current ? snapPositionDetailsRef.current : snapPositionRef.current;
+
+  //   let bottomBarHeight = 0;
+  //   if (!useCustomHeight) {
+  //     if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
+  //     if (snapPositionToUse === 2) bottomBarHeight = 86;
+  //   }
+
+  //   const adjustedSouthBound = mapInstance.unproject([0, screenHeight - bottomBarHeight]).lat;
+
+  // const filtered = filteredRestaurantsRef.current.filter((restaurant) => {
+  //   return restaurant.lng >= bounds.getWest() && restaurant.lng <= bounds.getEast() && restaurant.lat >= adjustedSouthBound && restaurant.lat <= bounds.getNorth();
+  // });
+
+  //   dispatch(setVisibleRestaurants(filtered));
+  // };
   const updateFilteredRestaurants = (useCustomHeight: boolean) => {
     if (!mapInstance) return;
 
     const bounds = mapInstance.getBounds();
     const screenHeight = window.innerHeight;
 
-    // Use the correct snapPosition based on whether restaurant details are open
-    const snapPositionToUse = isRestaurantDetailsOpenRef.current ? snapPositionDetailsRef.current : snapPositionRef.current;
+    if (isLargeScreenRef.current) {
+      // Obcinamy tylko do zakresu: left: 420px, right: 0, top: 0, bottom: 0
+      const leftBound = mapInstance.unproject([420, 0]).lng;
 
-    let bottomBarHeight = 0;
-    if (!useCustomHeight) {
-      if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
-      if (snapPositionToUse === 2) bottomBarHeight = 86;
+      const filtered = filteredRestaurantsRef.current.filter((restaurant) => {
+        return restaurant.lng >= leftBound && restaurant.lng <= bounds.getEast() && restaurant.lat >= bounds.getSouth() && restaurant.lat <= bounds.getNorth();
+      });
+
+      dispatch(setVisibleRestaurants(filtered));
+    } else {
+      const snapPositionToUse = isRestaurantDetailsOpenRef.current ? snapPositionDetailsRef.current : snapPositionRef.current;
+
+      // Domyślne dolne ograniczenie dla wersji mobilnej
+      let bottomBarHeight = 0;
+      if (!useCustomHeight) {
+        if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
+        if (snapPositionToUse === 2) bottomBarHeight = 86;
+      }
+
+      const adjustedSouthBound = mapInstance.unproject([0, screenHeight - bottomBarHeight]).lat;
+      // Standardowe filtrowanie dla urządzeń mobilnych
+      const filtered = filteredRestaurantsRef.current.filter((restaurant) => {
+        return restaurant.lng >= bounds.getWest() && restaurant.lng <= bounds.getEast() && restaurant.lat >= adjustedSouthBound && restaurant.lat <= bounds.getNorth();
+      });
+
+      dispatch(setVisibleRestaurants(filtered));
     }
-
-    const adjustedSouthBound = mapInstance.unproject([0, screenHeight - bottomBarHeight]).lat;
-
-    const filtered = filteredRestaurantsRef.current.filter((restaurant) => {
-      return restaurant.lng >= bounds.getWest() && restaurant.lng <= bounds.getEast() && restaurant.lat >= adjustedSouthBound && restaurant.lat <= bounds.getNorth();
-    });
-
-    dispatch(setVisibleRestaurants(filtered));
   };
 
   useEffect(() => {
