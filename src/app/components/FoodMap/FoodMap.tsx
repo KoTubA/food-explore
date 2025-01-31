@@ -149,9 +149,6 @@ const FoodMap = () => {
       // Determine the zoom level based on whether the restaurant is from the URL or not
       const zoomLevel = selectedRestaurant.isFromUrl ? 15 : mapInstance.getZoom();
 
-      // Determine the horizontal offset for large screens (420px hidden on the left)
-      const offsetX = isLargeScreen ? 420 / 2 : 0;
-
       // For large screens, keep the marker centered vertically (no Y offset)
       const offsetY = isLargeScreen ? 0 : -screenHeight * 0.25;
 
@@ -160,7 +157,7 @@ const FoodMap = () => {
         mapInstance.easeTo({
           center: [selectedRestaurant.data.lng, selectedRestaurant.data.lat],
           zoom: zoomLevel,
-          offset: [offsetX, offsetY],
+          offset: [0, offsetY],
           essential: true,
         });
       }
@@ -168,29 +165,6 @@ const FoodMap = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRestaurant, mapInstance]);
 
-  // const updateFilteredRestaurants = (useCustomHeight: boolean) => {
-  //   if (!mapInstance) return;
-
-  //   const bounds = mapInstance.getBounds();
-  //   const screenHeight = window.innerHeight;
-
-  //   // Use the correct snapPosition based on whether restaurant details are open
-  //   const snapPositionToUse = isRestaurantDetailsOpenRef.current ? snapPositionDetailsRef.current : snapPositionRef.current;
-
-  //   let bottomBarHeight = 0;
-  //   if (!useCustomHeight) {
-  //     if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
-  //     if (snapPositionToUse === 2) bottomBarHeight = 86;
-  //   }
-
-  //   const adjustedSouthBound = mapInstance.unproject([0, screenHeight - bottomBarHeight]).lat;
-
-  // const filtered = filteredRestaurantsRef.current.filter((restaurant) => {
-  //   return restaurant.lng >= bounds.getWest() && restaurant.lng <= bounds.getEast() && restaurant.lat >= adjustedSouthBound && restaurant.lat <= bounds.getNorth();
-  // });
-
-  //   dispatch(setVisibleRestaurants(filtered));
-  // };
   const updateFilteredRestaurants = (useCustomHeight: boolean) => {
     if (!mapInstance) return;
 
@@ -247,16 +221,6 @@ const FoodMap = () => {
 
   useEffect(() => {
     if (selectedLocation && mapInstance) {
-      mapInstance.jumpTo({
-        center: [selectedLocation.lng, selectedLocation.lat],
-        zoom: 10,
-      });
-      setSelectedLocation(null);
-    }
-  }, [selectedLocation, mapInstance]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && selectedLocation && mapInstance) {
       const zoomLevel = getZoomLevel(selectedLocation.zoom);
 
       mapInstance.jumpTo({
@@ -266,7 +230,8 @@ const FoodMap = () => {
 
       dispatch(setSelectedLocation(null));
     }
-  }, [selectedLocation, mapInstance, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLocation, mapInstance]);
 
   const handleMarkerClick = (restaurant: Restaurant) => {
     dispatch(
@@ -293,6 +258,8 @@ const FoodMap = () => {
           latitude: 51.9194,
           zoom: getZoomLevel(4), // Dynamically adjust zoom based on screen width
         }}
+        // Adjust padding to simulate an offset on large screens
+        padding={isLargeScreen ? { top: 0, bottom: 0, right: 0, left: 420 } : { top: 0, bottom: 0, right: 0, left: 0 }}
       >
         <NavigationControl position="top-right" />
         <GeolocateControl position="top-right" />

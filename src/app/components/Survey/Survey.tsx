@@ -110,7 +110,7 @@ const Survey = ({ onComplete }: { onComplete: () => void }) => {
   const isNextDisabled = !answers[currentQuestion.id]?.length;
 
   return (
-    <div className="flex flex-col h-dvh text-center pb-20 w-full">
+    <div className="bg-white relative flex flex-col h-dvh text-center pb-20 overflow-hidden w-full max-w-lg md:max-h-[615px] md:pt-4 md:rounded-md">
       <Header />
       <div className="flex flex-col p-4 gap-6 flex-grow overflow-hidden">
         {/* Progress Bar */}
@@ -125,7 +125,7 @@ const Survey = ({ onComplete }: { onComplete: () => void }) => {
         {/* Options */}
         <form method="POST" className="w-full flex flex-col gap-6 overflow-scroll" onSubmit={(e) => e.preventDefault()}>
           {/* Question Section */}
-          <p className="text-xl font-medium md:text-2xl text-start text-black">{currentQuestion.question}</p>
+          <p className="text-xl font-medium text-start text-black">{currentQuestion.question}</p>
           <div className={`w-full flex ${currentQuestion.multiple ? "flex-row flex-wrap gap-2" : "flex-col gap-4"}`}>
             {currentQuestion.options.map((option) => (
               <div key={option}>
@@ -134,7 +134,7 @@ const Survey = ({ onComplete }: { onComplete: () => void }) => {
                     {option}
                   </button>
                 ) : (
-                  <button type="button" className={`flex w-full cursor-pointer items-center gap-4 rounded-xl px-3 py-4 font-medium shadow md:gap-8 md:text-xl border text-darkGray bg-white ${isOptionSelected(option) ? "border-secondaryYellow" : "border-darkGray"}`} onClick={() => handleOptionSelect(option)}>
+                  <button type="button" className={`flex w-full cursor-pointer items-center gap-4 rounded-xl px-3 py-4 font-medium shadow md:gap-8 border text-darkGray bg-white ${isOptionSelected(option) ? "border-secondaryYellow" : "border-darkGray"}`} onClick={() => handleOptionSelect(option)}>
                     <span className={`flex flex-shrink-0 text-white justify-center items-center h-5 w-5 p-[3px] rounded-full border ${isOptionSelected(option) ? "bg-secondaryYellow border-secondaryYellow" : "bg-white border-darkGray"}`}>
                       <FiCheck />
                     </span>
@@ -146,7 +146,7 @@ const Survey = ({ onComplete }: { onComplete: () => void }) => {
           </div>
 
           {/* Navigation Buttons */}
-          <div className="flex items-center gap-8 fixed bottom-0 left-0 right-0 w-full p-4 z-10 h-20 bg-white">
+          <div className="flex items-center gap-8 absolute bottom-0 left-0 right-0 w-full p-4 z-10 h-20 bg-white md:pb-8">
             <div className="w-full flex justify-between gap-2">
               <button type="button" className={`flex items-center justify-center w-full h-12 text-darkGray px-2 rounded-md font-lato font-bold text-sm uppercase ${currentQuestionIndex > 0 ? "" : "invisible pointer-events-none"}`} onClick={handleBack}>
                 Powrót
