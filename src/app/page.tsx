@@ -44,14 +44,14 @@ const Home = () => {
 
       {/* Walkthrough overlay */}
       {showWalkthrough && (
-        <div className="fixed inset-0 bg-white z-[10000] overflow-hidden flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/50 z-[10000] overflow-hidden flex items-center justify-center">
           <Walkthrough onComplete={handleCompleteWalkthrough} />
         </div>
       )}
 
       {/* Survey overlay */}
       {showSurvey && (
-        <div className="fixed inset-0 bg-white z-[10000] overflow-hidden flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/50 z-[10000] overflow-hidden flex items-center justify-center">
           <Survey onComplete={handleCompleteSurvey} />
         </div>
       )}

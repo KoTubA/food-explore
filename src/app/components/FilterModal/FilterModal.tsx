@@ -5,8 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { setFilterModalOpen, setActiveFilters, resetFilters } from "@/src/redux/slices/restaurantsSlice";
 import { IoChevronBack } from "react-icons/io5";
 import { FaCirclePlus, FaCircleMinus } from "react-icons/fa6";
+import useWindowSize from "@/src/hooks/useWindowSize";
 
 const FilterModal = () => {
+  const windowSize = useWindowSize();
+  const isLargeScreen = windowSize.width >= 768;
+
   const filters = useSelector((state: RootState) => state.restaurants.activeFilters);
 
   const [expandedSections, setExpandedSections] = useState({
@@ -96,11 +100,11 @@ const FilterModal = () => {
 
   return (
     <>
-      <Sheet isOpen={isFilterModalOpen} onClose={closeModal}>
+      <Sheet isOpen={isFilterModalOpen} onClose={closeModal} {...(isLargeScreen ? { disableDrag: true } : {})}>
         <Sheet.Container>
           <Sheet.Content className="relative">
             <div className="w-full flex items-center justify-center px-4 py-6 relative">
-              <IoChevronBack onClick={closeModal} className="absolute left-4" />
+              <IoChevronBack onClick={closeModal} className="absolute left-4 cursor-pointer" />
               <h2 className="font-bold">Znajdź rekomendacje</h2>
             </div>
             <Sheet.Scroller className="flex flex-col pb-[76px] mb-4">

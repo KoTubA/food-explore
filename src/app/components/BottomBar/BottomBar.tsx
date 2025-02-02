@@ -16,8 +16,7 @@ import { LuWheatOff } from "react-icons/lu";
 import { Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { setSelectedRestaurant } from "@/src/redux/slices/restaurantsSlice";
 import { CiImageOff } from "react-icons/ci";
-
-const snapPoints = [0.95, 0.5, 86];
+import useWindowSize from "@/src/hooks/useWindowSize";
 
 interface ScrollParams {
   clientHeight: number;
@@ -30,6 +29,11 @@ interface GridWithContainer {
 }
 
 const BottomBar = () => {
+  const windowSize = useWindowSize();
+  const isLargeScreen = windowSize.width >= 768;
+
+  const snapPoints = isLargeScreen ? [1] : [0.95, 0.5, 86];
+
   const dispatch = useDispatch();
   const searchQuery = useSelector((state: RootState) => state.restaurants.searchQuery);
   const visibleRestaurants = useSelector((state: RootState) => state.restaurants.visibleRestaurants);
@@ -85,6 +89,12 @@ const BottomBar = () => {
   const handleSearch = (query: string) => {
     dispatch(setSearchQuery(query));
   };
+
+  useEffect(() => {
+    if (isLargeScreen) {
+      dispatch(setSnapPosition(0));
+    }
+  }, [isLargeScreen, dispatch]);
 
   useEffect(() => {
     if (listRef.current) {
@@ -261,11 +271,11 @@ const BottomBar = () => {
 
   return (
     <>
-      <Sheet ref={listSheetRef} isOpen={!isRestaurantDetailsOpen} onClose={() => {}} snapPoints={snapPoints} initialSnap={snapPosition} onSnap={handleSnap}>
+      <Sheet ref={listSheetRef} isOpen={isLargeScreen ? true : !isRestaurantDetailsOpen} onClose={() => {}} snapPoints={snapPoints} initialSnap={isLargeScreen ? 0 : snapPosition} onSnap={handleSnap} {...(isLargeScreen ? { disableDrag: true } : {})}>
         <Sheet.Container>
-          <Sheet.Header />
-          <Sheet.Content style={{ paddingBottom: listSheetRef.current?.y }} disableDrag={disableDrag}>
-            <div className="flex items-center space-x-3 px-4 pb-4">
+          <Sheet.Header className={`${!isLargeScreen ? "block" : "hidden"}`} />
+          <Sheet.Content style={{ paddingBottom: listSheetRef.current?.y }} disableDrag={isLargeScreen ? true : disableDrag}>
+            <div className="flex items-center space-x-3 px-4 pb-4 md:pt-4">
               <div className="relative flex items-center flex-grow bg-veryLightGray rounded-lg px-4 py-2 border-lightGray border">
                 <form className="w-full flex" onSubmit={handleFormSubmit} action="">
                   <IoSearch className="text-mediumGray" />
@@ -370,7 +380,7 @@ const BottomBar = () => {
                           onScroll={handleScroll}
                           style={{
                             overflowX: "hidden",
-                            overflowY: snapPosition === 0 ? "auto" : "hidden",
+                            overflowY: isLargeScreen ? "auto" : snapPosition === 0 ? "auto" : "hidden",
                           }}
                         />
                       )}
@@ -390,7 +400,7 @@ const BottomBar = () => {
           </Sheet.Content>
         </Sheet.Container>
       </Sheet>
-      {snapPosition === 0 && !isRestaurantDetailsOpen && <div className="fixed inset-0 w-full h-full bg-black/20 z-10"></div>}
+      {snapPosition === 0 && !isRestaurantDetailsOpen && <div className="fixed inset-0 w-full h-full bg-black/20 z-10 md:hidden"></div>}
       <RestaurantDetails />
       <FilterModal />
     </>

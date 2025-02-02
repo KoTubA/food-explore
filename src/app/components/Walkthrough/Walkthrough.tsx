@@ -14,7 +14,7 @@ const Walkthrough = ({ onComplete }: { onComplete: (option: string) => void }) =
   };
 
   return (
-    <div className="relative flex flex-col justify-between h-dvh text-center pb-44">
+    <div className="bg-white relative flex flex-col justify-between h-dvh text-center pb-44 overflow-hidden w-full max-w-lg md:max-h-[615px] md:pt-8 md:rounded-md">
       <Header />
       {step === 1 && (
         <div className="flex flex-col items-center p-4 gap-10 flex-grow">
@@ -25,7 +25,7 @@ const Walkthrough = ({ onComplete }: { onComplete: (option: string) => void }) =
             <h2 className="text-[28px] text-darkGray font-bold">Witamy!</h2>
             <p className="text-mediumGray font-lato">Cieszymy się, że jesteś z nami! Odkrywaj najlepsze miejsca kulinarne w Twoim mieście.</p>
           </div>
-          <div className="flex flex-col items-center gap-8 fixed bottom-0 left-0 right-0 w-full p-4 z-10 h-44 bg-white">
+          <div className="flex flex-col items-center gap-8 absolute bottom-0 left-0 right-0 w-full p-4 z-10 h-44 bg-white">
             <div className="flex gap-3">
               {[1, 2, 3].map((buttonStep) => (
                 <div key={buttonStep} className={`w-[6px] h-[6px] rounded-full ${step === buttonStep ? "bg-secondaryYellow" : "bg-gray-300"}`} />
@@ -49,7 +49,7 @@ const Walkthrough = ({ onComplete }: { onComplete: (option: string) => void }) =
             <h2 className="text-[28px] text-darkGray font-bold">Zacznij odkrywać</h2>
             <p className="text-mediumGray font-lato">Znajdź najlepsze restauracje dzięki naszym rekomendacjom opartym na preferencjach.</p>
           </div>
-          <div className="flex flex-col items-center gap-8 fixed bottom-0 left-0 right-0 w-full p-4 z-10 h-44 bg-white">
+          <div className="flex flex-col items-center gap-8 absolute bottom-0 left-0 right-0 w-full p-4 z-10 h-44 bg-white">
             <div className="flex gap-3">
               {[1, 2, 3].map((buttonStep) => (
                 <div key={buttonStep} className={`w-[6px] h-[6px] rounded-full ${step === buttonStep ? "bg-secondaryYellow" : "bg-gray-300"}`} />
@@ -73,7 +73,7 @@ const Walkthrough = ({ onComplete }: { onComplete: (option: string) => void }) =
             <h2 className="text-[28px] text-darkGray font-bold">Twój wybór</h2>
             <p className="text-mediumGray font-lato">Wypełnij ankietę z rekomendacjami lub przejdź do odkrywania miejsc samemu.</p>
           </div>
-          <div className="flex flex-col items-center gap-8 fixed bottom-0 left-0 right-0 w-full p-4 z-10 h-44 bg-white">
+          <div className="flex flex-col items-center gap-8 absolute bottom-0 left-0 right-0 w-full p-4 z-10 h-44 bg-white">
             <div className="flex gap-3">
               {[1, 2, 3].map((buttonStep) => (
                 <div key={buttonStep} className={`w-[6px] h-[6px] rounded-full ${step === buttonStep ? "bg-secondaryYellow" : "bg-gray-300"}`} />
