@@ -65,3 +65,19 @@ input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
   -webkit-appearance: none;
 }
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: hsl(0, 0%, 91%);
+  border-radius: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  background-color: hsl(0, 0%, 53%);
+}
