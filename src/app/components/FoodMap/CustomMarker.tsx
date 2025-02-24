@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Marker } from "react-map-gl";
 import { useSelector } from "react-redux";
 import { RootState } from "@/src/redux/store";
@@ -12,66 +13,66 @@ interface CustomMarkerProps {
 
 const CustomMarker: React.FC<CustomMarkerProps> = ({ restaurant, onClick }) => {
   const selectedRestaurant = useSelector((state: RootState) => state.restaurants.selectedRestaurant);
-  const getIcon = (type: string): string => {
+  const getIconSrc = (type: string): string => {
     switch (type) {
       case "Kawiarnia":
-        return "☕";
+        return "/assets/svg/emoji/coffee.svg";
       case "Cukiernia":
-        return "🍰";
+        return "/assets/svg/emoji/cake.svg";
       case "Lody":
-        return "🍦";
+        return "/assets/svg/emoji/ice-cream.svg";
       case "Piekarnia":
-        return "🥖";
+        return "/assets/svg/emoji/bread.svg";
       case "Fast food":
-        return "🍟";
+        return "/assets/svg/emoji/fast-food.svg";
       case "Pub":
-        return "🍻";
+        return "/assets/svg/emoji/pub.svg";
       case "Bar":
-        return "🍹";
+        return "/assets/svg/emoji/bar.svg";
       case "Restauracja":
-        return "🍽️";
+        return "/assets/svg/emoji/restaurant.svg";
       case "Hamburgery":
-        return "🍔";
+        return "/assets/svg/emoji/burger.svg";
       case "Pizza":
-        return "🍕";
+        return "/assets/svg/emoji/pizza.svg";
       case "Makaron":
-        return "🍝";
+        return "/assets/svg/emoji/pasta.svg";
       case "Ramen":
-        return "🍜";
+        return "/assets/svg/emoji/ramen.svg";
       case "Pączkaria":
-        return "🍩";
+        return "/assets/svg/emoji/donut.svg";
       case "Śniadania":
-        return "🥐";
+        return "/assets/svg/emoji/breakfast.svg";
       case "Strefa gastronomiczna":
-        return "🥘";
+        return "/assets/svg/emoji/food-zone.svg";
       case "Kuchnia grecka":
-        return "🇬🇷";
+        return "/assets/svg/emoji/greek-cuisine.svg";
       case "Kuchnia meksykańska":
-        return "🇲🇽";
+        return "/assets/svg/emoji/mexican-cuisine.svg";
       case "Kuchnia polska":
-        return "🇵🇱";
+        return "/assets/svg/emoji/polish-cuisine.svg";
       case "Kuchnia włoska":
-        return "🇮🇹";
+        return "/assets/svg/emoji/italian-cuisine.svg";
       case "Kuchnia turecka":
-        return "🇹🇷";
+        return "/assets/svg/emoji/turkish-cuisine.svg";
       case "Kuchnia wietnamska":
-        return "🇻🇳";
+        return "/assets/svg/emoji/vietnamese-cuisine.svg";
       case "Kuchnia japońska":
-        return "🇯🇵";
+        return "/assets/svg/emoji/japanese-cuisine.svg";
       case "Kuchnia hiszpańska":
-        return "🇪🇸";
+        return "/assets/svg/emoji/spanish-cuisine.svg";
       case "Kuchnia tajska":
-        return "🇹🇭";
+        return "/assets/svg/emoji/thai-cuisine.svg";
       case "Kuchnia bliskowschodnia":
-        return "👳";
+        return "/assets/svg/emoji/middle-eastern-cuisine.svg";
       case "Kuchnia europejska":
-        return "🇪🇺";
+        return "/assets/svg/emoji/european-cuisine.svg";
       case "Kuchnia azjatycka":
-        return "🌏";
+        return "/assets/svg/emoji/asian-cuisine.svg";
       case "Kuchnia amerykańska":
-        return "🇺🇸";
+        return "/assets/svg/emoji/american-cuisine.svg";
       default:
-        return "🥪";
+        return "/assets/svg/emoji/rest.svg";
     }
   };
 
@@ -83,7 +84,7 @@ const CustomMarker: React.FC<CustomMarkerProps> = ({ restaurant, onClick }) => {
         <FaLocationDot className="text-secondaryYellow w-auto h-9 animate-bounceOnce" />
       ) : (
         <div className="w-9 h-9 bg-veryLightGray border-2 border-white rounded-full flex justify-center items-center shadow-md cursor-pointer animate-fadeIn">
-          <span className="text-xl">{getIcon(restaurant.categories)}</span>
+          <Image src={getIconSrc(restaurant.categories)} alt={restaurant.categories} width={24} height={24} className="object-contain" />
         </div>
       )}
     </Marker>
