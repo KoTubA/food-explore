@@ -10,7 +10,7 @@ const questions = [
   {
     id: 1,
     question: "Wybierz dostępne miasto",
-    options: ["Cała Polska", "Kraków", "Warszawa", "Trójmiasto"],
+    options: ["Cała Polska", "Kraków", "Warszawa", "Trójmiasto", "Wrocław", "Poznań", "Łódź"],
     multiple: false,
   },
   {
@@ -37,6 +37,9 @@ const cityCoordinates: Record<string, { lat: number; lng: number; zoom: number }
   Kraków: { lat: 50.0647, lng: 19.945, zoom: 9 },
   Warszawa: { lat: 52.2297, lng: 21.0122, zoom: 9 },
   Trójmiasto: { lat: 54.4295, lng: 18.5876, zoom: 10 },
+  Wrocław: { lat: 51.1079, lng: 17.0385, zoom: 10 },
+  Poznań: { lat: 52.4064, lng: 16.9252, zoom: 10 },
+  Łódź: { lat: 51.7592, lng: 19.456, zoom: 10 },
   "Cała Polska": null,
 };
 
@@ -123,7 +126,7 @@ const Survey = ({ onComplete }: { onComplete: () => void }) => {
           </div>
         </div>
         {/* Options */}
-        <form method="POST" className="w-full flex flex-col gap-6 overflow-scroll" onSubmit={(e) => e.preventDefault()}>
+        <form method="POST" className="w-full flex flex-col gap-6 overflow-y-auto" onSubmit={(e) => e.preventDefault()}>
           {/* Question Section */}
           <p className="text-xl font-medium text-start text-black">{currentQuestion.question}</p>
           <div className={`w-full flex ${currentQuestion.multiple ? "flex-row flex-wrap gap-2" : "flex-col gap-4"}`}>

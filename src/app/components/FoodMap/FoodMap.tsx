@@ -172,7 +172,7 @@ const FoodMap = () => {
     const screenHeight = window.innerHeight;
 
     if (isLargeScreenRef.current) {
-      // Obcinamy tylko do zakresu: left: 420px, right: 0, top: 0, bottom: 0
+      // Clip only to the range: left: 420px, right: 0, top: 0, bottom: 0
       const leftBound = mapInstance.unproject([420, 0]).lng;
 
       const filtered = filteredRestaurantsRef.current.filter((restaurant) => {
@@ -183,7 +183,7 @@ const FoodMap = () => {
     } else {
       const snapPositionToUse = isRestaurantDetailsOpenRef.current ? snapPositionDetailsRef.current : snapPositionRef.current;
 
-      // Domyślne dolne ograniczenie dla wersji mobilnej
+      // Default bottom limit for mobile version
       let bottomBarHeight = 0;
       if (!useCustomHeight) {
         if (snapPositionToUse === 1) bottomBarHeight = screenHeight * 0.5;
@@ -191,7 +191,7 @@ const FoodMap = () => {
       }
 
       const adjustedSouthBound = mapInstance.unproject([0, screenHeight - bottomBarHeight]).lat;
-      // Standardowe filtrowanie dla urządzeń mobilnych
+      // Standard filtering for mobile devices
       const filtered = filteredRestaurantsRef.current.filter((restaurant) => {
         return restaurant.lng >= bounds.getWest() && restaurant.lng <= bounds.getEast() && restaurant.lat >= adjustedSouthBound && restaurant.lat <= bounds.getNorth();
       });
@@ -201,7 +201,17 @@ const FoodMap = () => {
   };
 
   useEffect(() => {
-    if (mapInstance) {
+    // Check if the user has set the location using the survey (we check this to avoid detecting map movement as an event)
+    if (selectedLocation && mapInstance) {
+      const zoomLevel = getZoomLevel(selectedLocation.zoom);
+
+      mapInstance.jumpTo({
+        center: [selectedLocation.lng, selectedLocation.lat],
+        zoom: zoomLevel,
+      });
+
+      dispatch(setSelectedLocation(null));
+    } else if (mapInstance) {
       mapInstance.on("moveend", () => updateFilteredRestaurants(false)); // Trigger updateFilteredRestaurants only on moveend
       updateFilteredRestaurants(true); // Initial filtering on map load
     }
@@ -212,26 +222,12 @@ const FoodMap = () => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapInstance]);
+  }, [mapInstance, selectedLocation]);
 
   useEffect(() => {
     updateFilteredRestaurants(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredRestaurants]);
-
-  useEffect(() => {
-    if (selectedLocation && mapInstance) {
-      const zoomLevel = getZoomLevel(selectedLocation.zoom);
-
-      mapInstance.jumpTo({
-        center: [selectedLocation.lng, selectedLocation.lat],
-        zoom: zoomLevel,
-      });
-
-      dispatch(setSelectedLocation(null));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedLocation, mapInstance]);
 
   const handleMarkerClick = (restaurant: Restaurant) => {
     dispatch(

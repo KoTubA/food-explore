@@ -33,7 +33,7 @@ const FilterModal = () => {
   const dispatch = useDispatch();
   const { isFilterModalOpen } = useSelector((state: RootState) => state.restaurants);
 
-  // Zaktualizowanie lokalnych filtrów na globalne filtry przy otwarciu modalu
+  // Update local filters to match global filters when the modal opens
   useEffect(() => {
     if (isFilterModalOpen) {
       setLocalFilters({
@@ -45,8 +45,8 @@ const FilterModal = () => {
     }
   }, [isFilterModalOpen, filters]);
 
+  // Close the modal and reset local filters to global filter values if not applied
   const closeModal = () => {
-    // Przywrócenie lokalnych filtrów do wartości globalnych, jeśli nie zostały zaakceptowane
     setLocalFilters({
       city: null,
       dietStyle: filters.dietStyle,
@@ -85,7 +85,7 @@ const FilterModal = () => {
   };
 
   const applyFilters = () => {
-    dispatch(setActiveFilters(localFilters)); // Zaktualizowanie aktywnych filtrów w Redux
+    dispatch(setActiveFilters(localFilters)); // Update active filters in Redux
     closeModal();
   };
 
@@ -108,7 +108,7 @@ const FilterModal = () => {
               <h2 className="font-bold">Znajdź rekomendacje</h2>
             </div>
             <Sheet.Scroller className="flex flex-col pb-[76px] mb-4">
-              {/* Styl diety */}
+              {/* Diet Style */}
               <div className="flex flex-col gap-4 px-4 pt-2 pb-6 border-b border-lightGray">
                 <div className="flex justify-between items-center font-light text-darkGray">
                   <h3 className="uppercase">Styl diety</h3>
@@ -122,7 +122,7 @@ const FilterModal = () => {
                 </div>
               </div>
 
-              {/* Kategorie */}
+              {/* Categories */}
               <div className="flex flex-col px-4 pt-6 border-b border-lightGray">
                 <div className="flex justify-between items-center font-light text-darkGray pb-4">
                   <h3 className="uppercase">Kategorie</h3>
@@ -140,12 +140,12 @@ const FilterModal = () => {
                 <div className="flex justify-center items-center overflow-hidden h-12">
                   <button className="flex items-center justify-center whitespace-nowrap text-brand font-medium text-sm text-secondaryYellow" type="button" onClick={() => toggleSection("categories")}>
                     <span className="mr-2">{expandedSections.categories ? <FaCircleMinus /> : <FaCirclePlus />}</span>
-                    {expandedSections.categories ? "Zwiń filtry" : "Zobacz wszystkie filtry"}
+                    {expandedSections.categories ? "Zwiń kategorie" : "Zobacz wszystkie kategorie"}
                   </button>
                 </div>
               </div>
 
-              {/* Cena */}
+              {/* Price */}
               <div className="flex flex-col gap-4 px-4 py-6">
                 <div className="flex justify-between items-center font-light text-darkGray">
                   <h3 className="uppercase">Cena</h3>
@@ -160,7 +160,7 @@ const FilterModal = () => {
               </div>
             </Sheet.Scroller>
 
-            {/* Zamknij modal */}
+            {/* Close Modal */}
             <div className="flex items-center justify-center gap-3 absolute bottom-0 left-0 right-0 w-full p-4 z-10 bg-white">
               <button
                 onClick={() => {

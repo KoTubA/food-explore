@@ -30,8 +30,12 @@ const RestaurantDetails = () => {
   // Tracks if the effect has run once, ensuring the logic only executes when the slug is set for the first time
   const [hasExecuted, setHasExecuted] = useState(false);
 
-  const detailsSheetRef = useRef<SheetRef>(null);
   const [copied, setCopied] = useState(false);
+  const detailsSheetRef = useRef<SheetRef>(null);
+
+  const snapToList = (i: number) => {
+    detailsSheetRef.current?.snapTo(i);
+  };
 
   const handleSnap = (snapIndex: number) => {
     dispatch(setSnapPositionDetails(snapIndex));
@@ -95,7 +99,17 @@ const RestaurantDetails = () => {
 
   return (
     <>
-      <Sheet ref={detailsSheetRef} isOpen={isRestaurantDetailsOpen} onSnap={handleSnap} onClose={() => {}} snapPoints={snapPoints} initialSnap={isLargeScreen ? 0 : snapPositionDetails} {...(isLargeScreen ? { disableDrag: true } : {})}>
+      <Sheet
+        ref={detailsSheetRef}
+        isOpen={isRestaurantDetailsOpen}
+        onSnap={handleSnap}
+        onClose={() => {
+          snapToList(2);
+        }}
+        snapPoints={snapPoints}
+        initialSnap={isLargeScreen ? 0 : snapPositionDetails}
+        {...(isLargeScreen ? { disableDrag: true } : {})}
+      >
         <Sheet.Container>
           <Sheet.Header className={`${!isLargeScreen ? "block" : "hidden"}`} />
           {selectedRestaurant ? (

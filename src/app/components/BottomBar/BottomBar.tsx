@@ -59,7 +59,6 @@ const BottomBar = () => {
 
   const listSheetRef = useRef<SheetRef>(null);
   const snapToList = (i: number) => {
-    dispatch(setSnapPosition(i));
     listSheetRef.current?.snapTo(i);
   };
 
@@ -133,7 +132,7 @@ const BottomBar = () => {
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Jeżeli przesunięcie było większe niż 10px, zablokuj focusowanie
+    // If the movement was greater than 10px, block focusing
     if (hasDragged.current) {
       e.target.blur();
       return;
@@ -271,7 +270,17 @@ const BottomBar = () => {
 
   return (
     <>
-      <Sheet ref={listSheetRef} isOpen={isLargeScreen ? true : !isRestaurantDetailsOpen} onClose={() => {}} snapPoints={snapPoints} initialSnap={isLargeScreen ? 0 : snapPosition} onSnap={handleSnap} {...(isLargeScreen ? { disableDrag: true } : {})}>
+      <Sheet
+        ref={listSheetRef}
+        isOpen={isLargeScreen ? true : !isRestaurantDetailsOpen}
+        onClose={() => {
+          snapToList(2);
+        }}
+        snapPoints={snapPoints}
+        initialSnap={isLargeScreen ? 0 : snapPosition}
+        onSnap={handleSnap}
+        {...(isLargeScreen ? { disableDrag: true } : {})}
+      >
         <Sheet.Container>
           <Sheet.Header className={`${!isLargeScreen ? "block" : "hidden"}`} />
           <Sheet.Content style={{ paddingBottom: listSheetRef.current?.y }} disableDrag={isLargeScreen ? true : disableDrag}>
