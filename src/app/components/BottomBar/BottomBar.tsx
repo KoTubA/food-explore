@@ -1,7 +1,7 @@
 "use client";
 
 import { Sheet, type SheetRef } from "react-modal-sheet";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, UIEvent } from "react";
 import { IoSearch, IoClose } from "react-icons/io5";
 import { FiFilter } from "react-icons/fi";
 import { RootState } from "@/src/redux/store";
@@ -10,23 +10,13 @@ import { setSnapPosition, setFilterModalOpen, setSearchQuery, removeActiveFilter
 import RestaurantDetails from "@/src/app/components/RestaurantDetails/RestaurantDetails";
 import FilterModal from "@/src/app/components/FilterModal/FilterModal";
 import { IoSearchOutline } from "react-icons/io5";
-import { AutoSizer, List, ListRowRenderer, CellMeasurer, CellMeasurerCache } from "react-virtualized";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { FaSeedling, FaLeaf } from "react-icons/fa";
 import { LuWheatOff } from "react-icons/lu";
 import { Restaurant } from "@/src/redux/slices/restaurantsSlice";
 import { setSelectedRestaurant } from "@/src/redux/slices/restaurantsSlice";
 import { CiImageOff } from "react-icons/ci";
 import useWindowSize from "@/src/hooks/useWindowSize";
-
-interface ScrollParams {
-  clientHeight: number;
-  scrollHeight: number;
-  scrollTop: number;
-}
-
-interface GridWithContainer {
-  _scrollingContainer?: HTMLDivElement;
-}
 
 const BottomBar = () => {
   const windowSize = useWindowSize();
@@ -49,13 +39,8 @@ const BottomBar = () => {
   const hasDragged = useRef(false);
 
   const [disableDrag, setDisableDrag] = useState(false);
-  const listRef = useRef<List>(null);
-  const cache = useRef(
-    new CellMeasurerCache({
-      fixedWidth: true,
-      defaultHeight: 300,
-    })
-  );
+  const listRef = useRef<VirtuosoHandle>(null);
+  const [scrollTop, setScrollTop] = useState(0);
 
   const listSheetRef = useRef<SheetRef>(null);
   const snapToList = (i: number) => {
@@ -76,8 +61,10 @@ const BottomBar = () => {
   const selectedPrices = activeFilters.price?.length || 0;
   const dietStyleSelected = !!activeFilters.dietStyle;
 
-  const handleScroll = (params: ScrollParams) => {
-    const scrollTop = params.scrollTop;
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = event.target as HTMLDivElement;
+    setScrollTop(scrollTop);
+
     if (scrollTop === 0 && snapPosition === 0) {
       setDisableDrag(false);
     } else if (snapPosition === 0) {
@@ -97,10 +84,7 @@ const BottomBar = () => {
 
   useEffect(() => {
     if (listRef.current) {
-      setTimeout(() => {
-        listRef.current?.scrollToPosition(0);
-        cache.current.clearAll();
-      }, 100);
+      listRef.current.scrollTo({ top: 0, behavior: "auto" });
     }
   }, [visibleRestaurants]);
 
@@ -177,13 +161,9 @@ const BottomBar = () => {
       dispatch(setSnapPosition(index));
     }
 
-    const grid = listRef.current?.Grid as GridWithContainer;
-
-    const scrollTop = grid?._scrollingContainer?.scrollTop || 0;
-
     if (index !== 0) {
       setDisableDrag(false);
-    } else if (index === 0 && scrollTop != 0) {
+    } else if (index === 0 && scrollTop !== 0) {
       setDisableDrag(true);
     }
   };
@@ -201,24 +181,12 @@ const BottomBar = () => {
     );
   };
 
-  type ResizeParams = {
-    width: number;
-    height: number;
-  };
+  const Row = (index: number) => {
+    const isFirst = index === 0;
+    const isLast = index === visibleRestaurants.length - 1;
 
-  const prevWidth = useRef<number | null>(null);
-
-  const handleResize = ({ width }: ResizeParams) => {
-    if (prevWidth === null || prevWidth.current !== width) {
-      // Clear cache if the width has changed
-      cache.current.clearAll();
-      prevWidth.current = width;
-    }
-  };
-
-  const Row: ListRowRenderer = ({ index, style, key, parent }) => (
-    <CellMeasurer key={key} cache={cache.current} parent={parent} columnIndex={0} rowIndex={index}>
-      <div style={style} className="flex flex-col space-y-4 border-b border-lightGray px-4 py-4 first:pt-0 last:border-0 cursor-pointer animate-fadeIn" onClick={() => handleSelectRestaurant(visibleRestaurants[index])}>
+    return (
+      <div className={`flex flex-col space-y-4 border-b border-lightGray px-4 py-4 cursor-pointer animate-fadeIn ${isFirst ? "pt-0" : ""} ${isLast ? "border-b-0" : ""}`} onClick={() => handleSelectRestaurant(visibleRestaurants[index])}>
         <div className="bg-gray-200 flex flex-shrink-0 items-center justify-center text-gray-500 font-bold text-xl overflow-hidden relative rounded-xl" style={{ aspectRatio: "16 / 9" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {visibleRestaurants[index].image ? <img src={visibleRestaurants[index].image.url} alt={visibleRestaurants[index].name} className="object-cover animate-fadeIn w-full h-auto" /> : <CiImageOff size={"2rem"} />}
@@ -265,9 +233,8 @@ const BottomBar = () => {
           </div>
         </div>
       </div>
-    </CellMeasurer>
-  );
-
+    );
+  };
   return (
     <>
       <Sheet
@@ -375,25 +342,22 @@ const BottomBar = () => {
               <>
                 {visibleRestaurants.length > 0 ? (
                   <div className="w-full h-full flex flex-auto">
-                    <AutoSizer onResize={handleResize}>
-                      {({ width, height }) => (
-                        <List
-                          ref={listRef}
-                          height={height}
-                          width={width}
-                          rowCount={visibleRestaurants.length}
-                          rowHeight={cache.current.rowHeight}
-                          className="list-container"
-                          deferredMeasurementCache={cache.current}
-                          rowRenderer={Row}
-                          onScroll={handleScroll}
-                          style={{
-                            overflowX: "hidden",
-                            overflowY: isLargeScreen ? "auto" : snapPosition === 0 ? "auto" : "hidden",
-                          }}
-                        />
-                      )}
-                    </AutoSizer>
+                    <Virtuoso
+                      style={{
+                        height: "100%",
+                        width: "100%",
+                        position: "relative",
+                        zIndex: 1,
+                        overflowX: "hidden",
+                        overflowY: isLargeScreen ? "auto" : snapPosition === 0 ? "auto" : "hidden",
+                      }}
+                      totalCount={visibleRestaurants.length}
+                      className="list-container"
+                      overscan={300}
+                      itemContent={(index) => Row(index)}
+                      ref={listRef}
+                      onScroll={handleScroll}
+                    />
                   </div>
                 ) : (
                   <div className="flex flex-col items-center py-8 gap-4">
