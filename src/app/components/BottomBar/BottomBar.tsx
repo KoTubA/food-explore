@@ -255,7 +255,7 @@ const BottomBar = () => {
               <div className="relative flex items-center flex-grow bg-veryLightGray rounded-lg px-4 py-2 border-lightGray border">
                 <form className="w-full flex" onSubmit={handleFormSubmit} action="">
                   <IoSearch className="text-mediumGray" />
-                  <input ref={inputRef} type="search" placeholder="Wyszukaj tutaj" className="bg-transparent flex-grow pl-2 pr-4 text-sm text-mediumGray font-medium outline-none" value={searchQuery} onChange={(e) => handleSearch(e.target.value)} onFocus={handleFocus} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onBlur={handleBlur} autoComplete="off" autoCorrect="off" spellCheck="false" />
+                  <input ref={inputRef} type="search" placeholder="Szukaj po nazwie..." className="bg-transparent flex-grow pl-2 pr-4 text-sm text-mediumGray font-medium outline-none" value={searchQuery} onChange={(e) => handleSearch(e.target.value)} onFocus={handleFocus} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onBlur={handleBlur} autoComplete="off" autoCorrect="off" spellCheck="false" />
                 </form>
                 {/* Button to clear the search input */}
                 {searchQuery && (

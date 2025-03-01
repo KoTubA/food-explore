@@ -28,7 +28,7 @@ const RestaurantDetails = () => {
   const restaurantSlug = searchParams.get("restaurant");
   const dispatch = useDispatch();
   // Tracks if the effect has run once, ensuring the logic only executes when the slug is set for the first time
-  const [hasExecuted, setHasExecuted] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const [copied, setCopied] = useState(false);
   const detailsSheetRef = useRef<SheetRef>(null);
@@ -54,26 +54,37 @@ const RestaurantDetails = () => {
   const snapPositionDetails = useSelector((state: RootState) => state.restaurants.snapPositionDetails);
 
   useEffect(() => {
-    if (hasExecuted) return;
-    // Check if the 'restaurant' parameter exists in the URL and if the restaurant list is available
-    if (restaurantSlug && restaurants.length > 0) {
+    // If either restaurantSlug or selectedRestaurant exists, proceed with the logic
+    if (selectedRestaurant || restaurantSlug) {
+      // If there's no restaurantSlug (i.e., back navigation), close restaurant details and return
+      if (!restaurantSlug) {
+        dispatch(closeRestaurantDetails());
+        return;
+      }
+
+      // Encode the slug to ensure it matches the expected format
       const encodedSlug = encodeURIComponent(restaurantSlug.trim()).replace(/%20/g, "+");
-      // Search for a restaurant by name or slug
+
+      // Find the restaurant that matches the encoded slug or name
       const selected = restaurants.find((res) => res.slug === encodedSlug || res.name === encodedSlug);
 
       if (selected) {
+        // Dispatch the selected restaurant data, setting `isFromUrl` flag based on initial load
         dispatch(
           setSelectedRestaurant({
             data: selected,
-            isFromUrl: true,
+            isFromUrl: isInitialLoad, // `true` for initial load, `false` for navigation (via user action)
           })
         );
       }
+    }
 
-      setHasExecuted(true);
+    // Set the initial load flag to false after the first render
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [restaurantSlug, restaurants]);
 
   useEffect(() => {
     if (isLargeScreen) {
@@ -114,24 +125,24 @@ const RestaurantDetails = () => {
           <Sheet.Header className={`${!isLargeScreen ? "block" : "hidden"}`} />
           {selectedRestaurant ? (
             <Sheet.Content style={{ paddingBottom: detailsSheetRef.current?.y }} key={selectedRestaurant.id}>
-              <div className="flex flex-col px-4 pb-4 md:pt-4 space-y-1">
+              <div className="flex flex-col px-4 pb-4 md:pt-4 gap-y-1">
                 <div className="flex items-start justify-between">
                   <h2 className="text-xl font-medium animate-fadeIn">{selectedRestaurant.name}</h2>
-                  <div className="flex space-x-1">
-                    <button onClick={handleCopyClick} className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                  <div className="flex gap-x-1 ml-1">
+                    <button onClick={handleCopyClick} title={copied ? "Skopiowano!" : "Skopiuj adres"} className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
                       {copied ? <FiCheck className="text-primaryGreen" /> : <FaRegCopy size="100%" />}
                     </button>
                     {selectedRestaurant.googleMapsLink && (
-                      <Link href={selectedRestaurant.googleMapsLink} target="_blank" rel="noopener noreferrer" className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                      <Link href={selectedRestaurant.googleMapsLink} target="_blank" rel="noopener noreferrer" title="Otwórz w Google Maps" className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
                         <FaGoogle size="100%" />
                       </Link>
                     )}
                     {selectedRestaurant.link && (
-                      <Link href={selectedRestaurant.link} target="_blank" rel="noopener noreferrer" className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                      <Link href={selectedRestaurant.link} target="_blank" rel="noopener noreferrer" title="Przejdź do strony restauracji" className="w-6 h-6 p-[5px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
                         <FaEarthAmericas size="100%" />
                       </Link>
                     )}
-                    <button onClick={handleCloseDetails} className="w-6 h-6 p-[3px] flex items-center justify-center bg-lightGray text-mediumGray rounded-full hover:bg-mediumGray/30 transition">
+                    <button onClick={handleCloseDetails} title="Zamknij" className="w-6 h-6 p-[3px] flex items-center justify-center bg-secondaryYellow text-white rounded-full hover:bg-secondaryYellowLight transition">
                       <IoClose size="100%" />
                     </button>
                   </div>

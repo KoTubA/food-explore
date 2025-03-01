@@ -12,6 +12,7 @@ const roboto = Roboto({
 const lato = Lato({
   subsets: ["latin"],
   weight: ["400", "700"],
+  style: ["normal", "italic"],
   variable: "--font-lato",
 });
 

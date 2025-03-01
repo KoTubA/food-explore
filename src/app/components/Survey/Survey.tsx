@@ -22,12 +22,14 @@ const questions = [
   {
     id: 3,
     question: "Wybierz przedział cenowy",
+    description: "Wybierz co najmniej jedną opcję",
     options: ["1–20 zł", "20–40 zł", "40–60 zł", "$", "$$", "$$$"],
     multiple: true,
   },
   {
     id: 4,
     question: "Wybierz kategorie restauracji",
+    description: "Wybierz co najmniej jedną opcję",
     options: ["Kawiarnia", "Cukiernia", "Lody", "Piekarnia", "Fast food", "Pub", "Bar", "Restauracja", "Hamburgery", "Pizza", "Makaron", "Ramen", "Pączkaria", "Śniadania", "Strefa gastronomiczna", "Kuchnia grecka", "Kuchnia meksykańska", "Kuchnia polska", "Kuchnia włoska", "Kuchnia turecka", "Kuchnia wietnamska", "Kuchnia japońska", "Kuchnia hiszpańska", "Kuchnia tajska", "Kuchnia bliskowschodnia", "Kuchnia europejska", "Kuchnia azjatycka", "Kuchnia amerykańska"],
     multiple: true,
   },
@@ -126,10 +128,11 @@ const Survey = ({ onComplete }: { onComplete: () => void }) => {
           </div>
         </div>
         {/* Options */}
-        <form method="POST" className="w-full flex flex-col gap-6 overflow-y-auto" onSubmit={(e) => e.preventDefault()}>
+        <form method="POST" className="w-full flex flex-col overflow-y-auto" onSubmit={(e) => e.preventDefault()}>
           {/* Question Section */}
           <p className="text-xl font-medium text-start text-black">{currentQuestion.question}</p>
-          <div className={`w-full flex ${currentQuestion.multiple ? "flex-row flex-wrap gap-2" : "flex-col gap-4"}`}>
+          {currentQuestion.description && <p className="text-xs font-normal text-start text-mediumGray mt-1 italic font-lato">{currentQuestion.description}</p>}
+          <div className={`w-full flex mt-6 ${currentQuestion.multiple ? "flex-row flex-wrap gap-2" : "flex-col gap-4"}`}>
             {currentQuestion.options.map((option) => (
               <div key={option}>
                 {currentQuestion.multiple ? (
