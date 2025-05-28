@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Food Explore
 
-## Getting Started
+## Project Purpose
 
-First, run the development server:
+**Food Explore** is a web application created as part of a master's thesis project. The goal of the thesis was to evaluate the effectiveness and usability of **recommender systems** in the context of restaurant suggestions in large cities. As part of the research, this application was developed to serve as a research tool.
+
+The app features an interactive survey that collects users' preferences and uses them to generate personalized restaurant recommendations.
+
+<p align="center">
+  <img src="./design/screenshot-homepage.png" alt="Food Explore Screenshot" width="100%"/>
+  <br/>
+  <small>Food Explore – personalized restaurant recommendation tool</small>
+</p>
+
+> _The thesis aims to investigate the effectiveness and usability of recommender systems for restaurant selection in metropolitan areas. The application serves as a tool that gathers user preferences through a guided survey and provides tailored dining suggestions._
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 15
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **State Management:** Redux Toolkit
+- **Map Integration:** Mapbox GL, Maplibre GL, React Map GL
+- **UI & UX:** React Modal Sheet, React Virtuoso, React Icons
+- **Content Management:** Contentful
+
+---
+
+## Live Demo
+
+You can try the app here: [https://foodexplore.vercel.app/](https://foodexplore.vercel.app/)
+
+---
+
+## How to Run Locally?
+
+### 1. Clone the Repository:
+
+```bash
+git clone https://github.com/your-username/food-explore.git
+```
+
+### 2. Install Dependencies:
+
+```bash
+npm install
+```
+
+or:
+
+```bash
+yarn install
+```
+
+### 3. Configure Environment Variables:
+
+Create a `.env.local` file in the root of the project and add the following:
+
+```env
+NEXT_PUBLIC_CONTENTFUL_SPACE_ID=your_space_id
+NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN=your_access_token
+```
+
+### 4. Run the Development Server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+or:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+yarn dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 5. Open in Your Browser:
+
+Visit [http://localhost:3000](http://localhost:3000) to see the app in action.
+
+---
+
+## Folder Structure
+
+```bash
+├── README.md
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── node_modules/
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── public/
+│ └── assets/
+├── src/
+│ ├── app/
+│ ├── hooks/
+│ ├── providers/
+│ └── redux/
+├── tailwind.config.ts
+└── tsconfig.json
+```
+
+The main application logic is inside the `src/` folder. Static files such as images or icons are located in `public/assets/`.
+
+---
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+To learn more about the tools and frameworks used in this project:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Redux Toolkit](https://redux-toolkit.js.org/)
+- [Contentful Documentation](https://www.contentful.com/developers/docs/)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project is for educational and research purposes only and is not intended for commercial use.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+_Developed with ❤️ for academic research._
